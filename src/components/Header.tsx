@@ -12,11 +12,11 @@ export const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-cyan-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-background border border-primary/30 rounded-xl flex items-center justify-center group hover:border-primary/60 transition-all duration-300">
+              <span className="text-primary font-black text-lg font-mono group-hover:text-cyan-400 transition-colors duration-300">CM</span>
             </div>
-            <span className="text-xl font-bold text-gradient">CocMarket</span>
+            <span className="text-xl font-black text-white font-mono tracking-wider">CocMarket</span>
           </div>
 
           {/* Search Bar - Desktop */}
@@ -33,22 +33,22 @@ export const Header = () => {
 
           {/* Navigation - Desktop */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-muted-foreground hover:text-white">
+            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">
               Vendre
             </Button>
-            <Button variant="ghost" className="text-muted-foreground hover:text-white">
+            <Button variant="ghost" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">
               <ShoppingCart className="w-4 h-4 mr-2" />
               Panier
             </Button>
             <Button 
               variant="outline" 
-              className="border-white/20 hover:bg-white/10"
+              className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 font-medium"
               onClick={() => setIsLoginModalOpen(true)}
             >
               <User className="w-4 h-4 mr-2" />
               Connexion
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-medium border border-primary/30 hover:border-primary/50 transition-all duration-300">
               Inscription
             </Button>
           </div>

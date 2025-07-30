@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, Users, Star, Clock, Zap } from "lucide-react";
 
 const statsData = [
-  { label: "Comptes vendus", value: "5,000+", icon: "👥" },
-  { label: "Satisfaction client", value: "99.9%", icon: "⭐" },
-  { label: "Villages disponibles", value: "500+", icon: "🏘️" },
-  { label: "Support 24/7", value: "100%", icon: "🛠️" },
-  { label: "Livraison rapide", value: "<5min", icon: "⚡" },
+  { label: "Comptes vendus", value: "5,000+", icon: Users },
+  { label: "Satisfaction client", value: "99.9%", icon: Star },
+  { label: "Villages disponibles", value: "500+", icon: Shield },
+  { label: "Support 24/7", value: "100%", icon: Clock },
+  { label: "Livraison rapide", value: "<5min", icon: Zap },
 ];
 
 export const StatsCarousel = () => {
@@ -28,45 +28,83 @@ export const StatsCarousel = () => {
     setCurrentIndex((prev) => (prev + 1) % statsData.length);
   };
 
+  const IconComponent = statsData[currentIndex].icon;
+
   return (
-    <div className="relative w-full max-w-md mx-auto glass-effect rounded-2xl p-6 neon-glow overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-cyan-500/10 opacity-50"></div>
-      
-      <div className="relative flex items-center justify-between">
+    <div className="relative w-full max-w-6xl mx-auto overflow-hidden">
+      {/* Message redirection vers le bas */}
+      <div className="text-center mb-6">
         <button 
-          onClick={goToPrevious}
-          className="p-2 rounded-full bg-primary/20 hover:bg-primary/30 transition-all duration-300"
+          onClick={() => document.getElementById('protection-modes')?.scrollIntoView({ behavior: 'smooth' })}
+          className="text-sm text-primary hover:text-cyan-400 transition-colors duration-300 underline decoration-primary/50 hover:decoration-cyan-400/50"
         >
-          <ChevronLeft className="w-4 h-4 text-primary" />
-        </button>
-
-        <div className="flex-1 text-center px-4">
-          <div className="text-3xl mb-2 floating">
-            {statsData[currentIndex].icon}
-          </div>
-          <div className="text-3xl font-bold text-gradient mb-1">
-            {statsData[currentIndex].value}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {statsData[currentIndex].label}
-          </div>
-        </div>
-
-        <button 
-          onClick={goToNext}
-          className="p-2 rounded-full bg-primary/20 hover:bg-primary/30 transition-all duration-300"
-        >
-          <ChevronRight className="w-4 h-4 text-primary" />
+          Comment fonctionnent nos achats sécurisés ? ↓
         </button>
       </div>
 
-      <div className="flex justify-center mt-4 space-x-2">
+      {/* Stats carousel avec effet 3D */}
+      <div className="perspective-1000">
+        <div className="relative overflow-hidden">
+          <div 
+            className="flex transition-all duration-1000 ease-in-out transform-gpu"
+            style={{ 
+              transform: `translateX(-${currentIndex * 20}%) rotateY(${currentIndex * -2}deg)`,
+              transformStyle: 'preserve-3d'
+            }}
+          >
+            {statsData.map((stat, index) => {
+              const StatIcon = stat.icon;
+              const isActive = index === currentIndex;
+              const offset = index - currentIndex;
+              
+              return (
+                <div
+                  key={index}
+                  className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/5 px-2 transition-all duration-1000 transform-gpu ${
+                    isActive ? 'scale-110 z-10' : 'scale-95 opacity-60'
+                  }`}
+                  style={{
+                    transform: `
+                      perspective(1000px) 
+                      rotateY(${offset * 15}deg) 
+                      translateZ(${isActive ? '50px' : '0px'})
+                      translateX(${offset * -10}px)
+                    `,
+                    transformStyle: 'preserve-3d'
+                  }}
+                >
+                  <div className="glass-effect rounded-2xl p-6 h-32 flex flex-col items-center justify-center text-center group hover:shadow-neon transition-all duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div className="relative z-10 space-y-2">
+                      <div className="w-8 h-8 mx-auto text-primary group-hover:text-cyan-400 transition-colors duration-300 floating">
+                        <StatIcon className="w-full h-full" />
+                      </div>
+                      <div className="text-2xl font-bold text-gradient">
+                        {stat.value}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation dots */}
+      <div className="flex justify-center mt-6 space-x-3">
         {statsData.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentIndex ? 'bg-primary w-6' : 'bg-muted-foreground/30'
+            className={`w-3 h-3 rounded-full transition-all duration-500 transform hover:scale-125 ${
+              index === currentIndex 
+                ? 'bg-gradient-to-r from-primary to-cyan-500 w-8 shadow-neon' 
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
             }`}
           />
         ))}

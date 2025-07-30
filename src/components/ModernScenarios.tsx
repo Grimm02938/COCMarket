@@ -1,8 +1,53 @@
+import { useState, useEffect } from "react";
 import { Shield, Lock, CreditCard } from "lucide-react";
 
 export const ModernScenarios = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 2);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const scenarios = [
+    {
+      title: "Mode 1: Protection Active",
+      description: "Transfert automatique sécurisé via notre interface protégée avec cryptage end-to-end",
+      color: "from-green-500 to-emerald-600",
+      textColor: "text-green-400",
+      icon: Shield,
+      features: [
+        "Cryptage militaire AES-256",
+        "Transfert instantané", 
+        "Traçabilité complète"
+      ],
+      demo: {
+        title: "Aperçu du processus sécurisé",
+        steps: ["Connexion cryptée", "Validation automatique", "Transfert instantané"]
+      }
+    },
+    {
+      title: "Mode 2: Protection Désactivée", 
+      description: "Accès direct aux identifiants vérifiés avec système de validation multi-niveaux",
+      color: "from-blue-500 to-cyan-600",
+      textColor: "text-blue-400",
+      icon: Lock,
+      features: [
+        "Identifiants authentifiés",
+        "Validation en temps réel",
+        "Support prioritaire"
+      ],
+      demo: {
+        title: "Interface d'accès direct",
+        steps: ["Identifiants vérifiés", "Accès immédiat", "Support dédié"]
+      }
+    }
+  ];
+
   return (
-    <div className="w-full max-w-6xl mx-auto p-6">
+    <div id="protection-modes" className="w-full max-w-7xl mx-auto p-6">
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold text-gradient mb-4">
           2 Modes de Protection Avancés
@@ -12,86 +57,118 @@ export const ModernScenarios = () => {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Scenario 1 */}
-        <div className="glass-effect rounded-3xl p-8 card-3d hover:neon-glow transition-all duration-500 group">
-          <div className="relative">
-            {/* Icon */}
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 floating">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
+      {/* Carousel 3D détaillé */}
+      <div className="perspective-1000 mb-12">
+        <div className="relative h-96 overflow-hidden">
+          {scenarios.map((scenario, index) => {
+            const IconComponent = scenario.icon;
+            const isActive = index === currentSlide;
+            
+            return (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-all duration-1000 transform-gpu ${
+                  isActive 
+                    ? 'translate-x-0 opacity-100 scale-100' 
+                    : index < currentSlide 
+                      ? '-translate-x-full opacity-0 scale-95'
+                      : 'translate-x-full opacity-0 scale-95'
+                }`}
+                style={{
+                  transform: `
+                    translateX(${isActive ? '0%' : index < currentSlide ? '-100%' : '100%'}) 
+                    perspective(1000px) 
+                    rotateY(${isActive ? '0deg' : index < currentSlide ? '-15deg' : '15deg'})
+                    scale(${isActive ? '1' : '0.9'})
+                  `,
+                  transformStyle: 'preserve-3d'
+                }}
+              >
+                <div className="grid lg:grid-cols-2 gap-8 h-full">
+                  {/* Content principal */}
+                  <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon group">
+                    <div className="relative h-full flex flex-col">
+                      <div className={`w-16 h-16 bg-gradient-to-br ${scenario.color} rounded-2xl flex items-center justify-center mb-6 floating`}>
+                        <IconComponent className="w-8 h-8 text-white" />
+                      </div>
 
-            {/* Content */}
-            <h3 className="text-2xl font-bold mb-4 text-green-400">
-              Mode 1: Protection Active
-            </h3>
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              Transfert automatique sécurisé via notre interface protégée avec cryptage end-to-end
-            </p>
+                      <h3 className={`text-2xl font-bold mb-4 ${scenario.textColor}`}>
+                        {scenario.title}
+                      </h3>
+                      
+                      <p className="text-lg text-muted-foreground mb-6 leading-relaxed flex-grow">
+                        {scenario.description}
+                      </p>
 
-            {/* Features */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Cryptage militaire AES-256</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Transfert instantané</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Traçabilité complète</span>
-              </div>
-            </div>
+                      <div className="space-y-3">
+                        {scenario.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-center space-x-3">
+                            <div className={`w-2 h-2 ${scenario.textColor.replace('text-', 'bg-')} rounded-full animate-pulse`}></div>
+                            <span className="text-sm text-muted-foreground">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-          </div>
+                  {/* Démo 3D interactive */}
+                  <div className="glass-effect rounded-3xl p-8 card-3d-enhanced group">
+                    <div className="relative h-full">
+                      <h4 className="text-lg font-semibold mb-6 text-center">{scenario.demo.title}</h4>
+                      
+                      {/* Interface simulée */}
+                      <div className="space-y-4 h-full flex flex-col justify-center">
+                        {scenario.demo.steps.map((step, idx) => (
+                          <div 
+                            key={idx} 
+                            className="glass-effect rounded-xl p-4 transform-gpu hover:scale-105 transition-all duration-300"
+                            style={{
+                              animationDelay: `${idx * 0.2}s`,
+                              transform: `perspective(500px) rotateX(${isActive ? '0deg' : '10deg'})`
+                            }}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-8 h-8 bg-gradient-to-br ${scenario.color} rounded-full flex items-center justify-center text-white font-bold text-sm`}>
+                                {idx + 1}
+                              </div>
+                              <span className="text-sm">{step}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Effet 3D de profondeur */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Scenario 2 */}
-        <div className="glass-effect rounded-3xl p-8 card-3d hover:neon-glow transition-all duration-500 group">
-          <div className="relative">
-            {/* Icon */}
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-6 floating">
-              <Lock className="w-8 h-8 text-white" />
-            </div>
-
-            {/* Content */}
-            <h3 className="text-2xl font-bold mb-4 text-blue-400">
-              Mode 2: Protection Désactivée
-            </h3>
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              Accès direct aux identifiants vérifiés avec système de validation multi-niveaux
-            </p>
-
-            {/* Features */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Identifiants authentifiés</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Validation en temps réel</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">Support prioritaire</span>
-              </div>
-            </div>
-
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-          </div>
+        {/* Navigation */}
+        <div className="flex justify-center mt-8 space-x-4">
+          {scenarios.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                index === currentSlide
+                  ? 'bg-primary text-white shadow-neon'
+                  : 'bg-white/10 text-muted-foreground hover:bg-white/20'
+              }`}
+            >
+              Mode {index + 1}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Guarantee section */}
-      <div className="mt-12 glass-effect rounded-2xl p-6 text-center">
+      {/* Garantie section */}
+      <div className="glass-effect rounded-2xl p-6 text-center card-3d hover:shadow-neon transition-all duration-500">
         <div className="flex items-center justify-center space-x-3 mb-4">
-          <CreditCard className="w-6 h-6 text-yellow-400" />
+          <CreditCard className="w-6 h-6 text-yellow-400 animate-pulse" />
           <span className="text-xl font-bold text-yellow-400">
             Garantie Remboursement
           </span>

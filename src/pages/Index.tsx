@@ -4,7 +4,7 @@ import { CertifiedReviews } from "@/components/CertifiedReviews";
 import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
-import { VillageListings } from "@/components/VillageListings";
+import { VillageListingsNew as VillageListings } from "@/components/VillageListingsNew";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {

@@ -50,6 +50,42 @@
   .glass-effect {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
+
+  /* 3D Card base */
+  .card-3d {
+    @apply transform-gpu transition-all duration-500;
+    transform-style: preserve-3d;
+    box-shadow: 
+      0 10px 30px -10px rgba(139, 92, 246, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+  
+  .card-3d:hover {
+    transform: perspective(1000px) rotateY(-2deg) rotateX(1deg) translateZ(5px);
+  }
+
+  /* Neon glow effect */
+  .neon-glow {
+    box-shadow: 
+      0 0 20px rgba(139, 92, 246, 0.3),
+      0 0 40px rgba(139, 92, 246, 0.15);
+  }
+
+  .hover:neon-glow:hover {
+    box-shadow: 
+      0 0 30px rgba(139, 92, 246, 0.5),
+      0 0 60px rgba(139, 92, 246, 0.25);
+  }
+
+  /* Floating animation */
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
   
   /* Enhanced 3D Cards */
   .card-3d-enhanced {
