@@ -1,14 +1,20 @@
+
 import { StatsCarousel } from "@/components/StatsCarousel";
 import { CertifiedReviews } from "@/components/CertifiedReviews";
 import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
+import { Header } from "@/components/Header";
+import { VillageListings } from "@/components/VillageListings";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
   useScrollReveal();
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec le carousel des stats */}
+      {/* Header avec navigation */}
+      <Header />
+      
+      {/* Stats carousel */}
       <header className="py-8">
         <StatsCarousel />
       </header>
@@ -23,6 +29,11 @@ const Index = () => {
         {/* Trust Score juste en dessous */}
         <section className="scroll-reveal flex justify-center">
           <ModernTrustScore />
+        </section>
+
+        {/* Annonces de villages */}
+        <section className="scroll-reveal">
+          <VillageListings />
         </section>
 
         {/* Scenarios modernes */}
