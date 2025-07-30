@@ -59,10 +59,10 @@ export const ModernScenarios = () => {
     <div id="protection-modes" className="w-full max-w-7xl mx-auto p-6">
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold text-gradient mb-4">
-          2 Modes de Protection Avancés
+          2 Modes de Livraison
         </h2>
         <p className="text-xl text-muted-foreground">
-          Les 2 sont 100% sécurisés et garantis
+          Choisissez votre méthode préférée - Les 2 sont 100% sécurisés
         </p>
       </div>
 
