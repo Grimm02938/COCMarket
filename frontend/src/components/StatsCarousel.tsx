@@ -57,48 +57,54 @@ export const StatsCarousel = () => {
         </button>
       </div>
 
-      {/* Stats carousel avec effet 3D */}
-      <div className="perspective-1000">
-        <div className="relative overflow-hidden">
-          <div 
-            className="flex transition-all duration-1000 ease-in-out transform-gpu"
-            style={{ 
-              transform: `translateX(-${currentIndex * 20}%) rotateY(${currentIndex * -2}deg)`,
-              transformStyle: 'preserve-3d'
-            }}
-          >
-            {statsData.map((stat, index) => {
+      {/* Stats carousel avec effet 3D - CORRIGÉ pour 3 slides circulaires */}
+      <div className="perspective-1000 overflow-hidden">
+        <div className="relative h-40 flex items-center justify-center">
+          <div className="flex items-center justify-center space-x-8">
+            {/* Affichage de 3 slides seulement en rotation circulaire */}
+            {[0, 1, 2].map((offset) => {
+              const index = (currentIndex + offset) % statsData.length;
+              const stat = statsData[index];
               const StatIcon = stat.icon;
-              const isActive = index === currentIndex;
-              const offset = index - currentIndex;
+              const isCenter = offset === 1; // Le slide du milieu est actif
               
               return (
                 <div
                   key={index}
-                  className={`flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/5 px-2 transition-all duration-1000 transform-gpu ${
-                    isActive ? 'scale-110 z-10' : 'scale-95 opacity-60'
+                  className={`transition-all duration-1000 transform-gpu ${
+                    isCenter ? 'scale-110 z-20' : 'scale-90 opacity-70 z-10'
                   }`}
                   style={{
                     transform: `
                       perspective(1000px) 
-                      rotateY(${offset * 15}deg) 
-                      translateZ(${isActive ? '50px' : '0px'})
-                      translateX(${offset * -10}px)
+                      rotateY(${(offset - 1) * 25}deg) 
+                      translateZ(${isCenter ? '100px' : '0px'})
+                      translateX(${(offset - 1) * 50}px)
                     `,
                     transformStyle: 'preserve-3d'
                   }}
                 >
-                  <div className="glass-effect rounded-2xl p-6 h-32 flex flex-col items-center justify-center text-center group hover:shadow-neon transition-all duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className={`glass-effect rounded-2xl p-6 w-64 h-32 flex flex-col items-center justify-center text-center group hover:shadow-neon transition-all duration-500 ${
+                    isCenter ? 'shadow-neon border border-primary/30' : ''
+                  }`}>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-2xl transition-opacity duration-500 ${
+                      isCenter ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}></div>
                     
                     <div className="relative z-10 space-y-2">
-                      <div className="w-8 h-8 mx-auto text-primary group-hover:text-cyan-400 transition-colors duration-300 floating">
+                      <div className={`w-8 h-8 mx-auto transition-colors duration-300 floating ${
+                        isCenter ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      }`}>
                         <StatIcon className="w-full h-full" />
                       </div>
-                      <div className="text-2xl font-bold text-gradient">
+                      <div className={`text-2xl font-bold text-gradient ${
+                        isCenter ? 'text-white' : 'text-muted-foreground'
+                      }`}>
                         {stat.value}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className={`text-xs ${
+                        isCenter ? 'text-primary' : 'text-muted-foreground'
+                      }`}>
                         {stat.label}
                       </div>
                     </div>
