@@ -160,4 +160,48 @@
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
   }
+
+  /* Nouveaux styles pour les améliorations */
+  .card-3d-mini {
+    @apply transform-gpu transition-all duration-300;
+    transform-style: preserve-3d;
+    box-shadow: 
+      0 4px 15px -5px rgba(139, 92, 246, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.03),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .card-3d-mini:hover {
+    transform: perspective(500px) rotateY(-2deg) rotateX(1deg) translateZ(5px);
+  }
+
+  /* Effet de pulsation pour les éléments importants */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+      transform: scale(1.02);
+    }
+  }
+
+  /* Transition fluide pour les changements d'état */
+  .smooth-transform {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Effet de zoom au survol */
+  .hover-zoom {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-zoom:hover {
+    transform: scale(1.05);
+  }
 }
