@@ -4,7 +4,8 @@ import { CertifiedReviews } from "@/components/CertifiedReviews";
 import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
-import { VillageListingsNew as VillageListings } from "@/components/VillageListingsNew";
+import { AdvancedVillageListings } from "@/components/AdvancedVillageListings";
+import { ProcessSteps } from "@/components/ProcessSteps";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
@@ -31,12 +32,17 @@ const Index = () => {
           <ModernTrustScore />
         </section>
 
-        {/* Annonces de villages */}
+        {/* Annonces de villages - NOUVEAU composant */}
         <section className="scroll-reveal">
-          <VillageListings />
+          <AdvancedVillageListings />
         </section>
 
-        {/* Scenarios modernes */}
+        {/* Étapes du processus - NOUVEAU */}
+        <section className="scroll-reveal">
+          <ProcessSteps />
+        </section>
+
+        {/* Scenarios modernes - Modes de livraison */}
         <section className="scroll-reveal">
           <ModernScenarios />
         </section>
