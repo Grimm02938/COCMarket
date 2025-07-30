@@ -23,15 +23,32 @@ export const ModernScenarios = () => {
         "Aucun identifiant partagé", 
         "Livraison instantanée"
       ],
-      demo: {
-        title: "Processus 100% automatisé",
-        steps: [
-          "Email de destination",
-          "Attente (2-5 min)", 
-          "Code de validation",
-          "Transfert terminé"
-        ]
-      }
+      steps: [
+        {
+          number: 1,
+          title: "Email de destination",
+          description: "Vous entrez votre email de destination",
+          icon: Mail,
+        },
+        {
+          number: 2,
+          title: "Attente",
+          description: "Patientez quelques minutes (2-5 min)",
+          icon: Clock,
+        },
+        {
+          number: 3,
+          title: "Code de validation",
+          description: "Entrez le code à 6 chiffres reçu par mail",
+          icon: ShieldCheck,
+        },
+        {
+          number: 4,
+          title: "Transfert terminé",
+          description: "Le compte est transféré automatiquement",
+          icon: CheckCircle,
+        }
+      ]
     },
     {
       title: "Protection Désactivée", 
@@ -44,14 +61,26 @@ export const ModernScenarios = () => {
         "Connexion manuelle requise",
         "Livraison instantanée"
       ],
-      demo: {
-        title: "Accès direct immédiat",
-        steps: [
-          "Réception des identifiants",
-          "Connexion manuelle",
-          "Compte à vous"
-        ]
-      }
+      steps: [
+        {
+          number: 1,
+          title: "Réception immédiate",
+          description: "Vous recevez email et mot de passe",
+          icon: User,
+        },
+        {
+          number: 2,
+          title: "Connexion manuelle",
+          description: "Vous vous connectez avec les identifiants",
+          icon: Key,
+        },
+        {
+          number: 3,
+          title: "Personnalisation",
+          description: "Changez les paramètres selon vos préférences",
+          icon: Settings,
+        }
+      ]
     }
   ];
 
