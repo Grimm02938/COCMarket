@@ -13,35 +13,44 @@ export const ModernScenarios = () => {
 
   const scenarios = [
     {
-      title: "Mode 1: Protection Active",
-      description: "Transfert automatique sécurisé via notre interface protégée avec cryptage end-to-end",
+      title: "Protection Activée",
+      description: "Transfert automatique sécurisé avec cryptage militaire. Le compte est transféré directement dans votre jeu sans partage d'identifiants.",
       color: "from-green-500 to-emerald-600",
       textColor: "text-green-400",
       icon: Shield,
       features: [
-        "Cryptage militaire AES-256",
-        "Transfert instantané", 
-        "Traçabilité complète"
+        "Transfert direct automatique",
+        "Aucun identifiant partagé", 
+        "Livraison instantanée"
       ],
       demo: {
-        title: "Aperçu du processus sécurisé",
-        steps: ["Connexion cryptée", "Validation automatique", "Transfert instantané"]
+        title: "Processus 100% automatisé",
+        steps: [
+          "Email de destination",
+          "Attente (2-5 min)", 
+          "Code de validation",
+          "Transfert terminé"
+        ]
       }
     },
     {
-      title: "Mode 2: Protection Désactivée", 
-      description: "Accès direct aux identifiants vérifiés avec système de validation multi-niveaux",
+      title: "Protection Désactivée", 
+      description: "Accès direct aux identifiants du compte. Vous recevez l'email et mot de passe pour vous connecter manuellement.",
       color: "from-blue-500 to-cyan-600",
       textColor: "text-blue-400",
       icon: Lock,
       features: [
-        "Identifiants authentifiés",
-        "Validation en temps réel",
-        "Support prioritaire"
+        "Identifiants complets fournis",
+        "Connexion manuelle requise",
+        "Livraison instantanée"
       ],
       demo: {
-        title: "Interface d'accès direct",
-        steps: ["Identifiants vérifiés", "Accès immédiat", "Support dédié"]
+        title: "Accès direct immédiat",
+        steps: [
+          "Réception des identifiants",
+          "Connexion manuelle",
+          "Compte à vous"
+        ]
       }
     }
   ];
