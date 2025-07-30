@@ -34,16 +34,16 @@ export const VillageDetails = ({ villageId = 1, onBack }: VillageDetailsProps) =
       { id: 6, name: "Statistiques", type: "stats" }
     ],
     characteristics: {
-      "Town Hall Level": "17",
-      "Archer Queen Level": "100",
-      "Barbarian King Level": "100",
-      "Grand Warden Level": "75",
-      "Royal Champion Level": "50",
-      "Minion Prince Level": "90",
-      "Hero Hall Level": "11",
-      "Battle Copter Level": "35",
-      "Platform": "Supercell ID",
-      "Experience Level": "253"
+      "Town Hall Level": { value: "17", icon: Home },
+      "Archer Queen Level": { value: "100", icon: Crown },
+      "Barbarian King Level": { value: "100", icon: Crown },
+      "Grand Warden Level": { value: "75", icon: Crown },
+      "Royal Champion Level": { value: "50", icon: Crown },
+      "Minion Prince Level": { value: "90", icon: Crown },
+      "Hero Hall Level": { value: "11", icon: Home },
+      "Battle Copter Level": { value: "35", icon: Target },
+      "Platform": { value: "Supercell ID", icon: Shield },
+      "Experience Level": { value: "253", icon: Trophy }
     },
     sellerDescription: `
 ✅ Instant Delivery Direct to Your Email After Purchase
