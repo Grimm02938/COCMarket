@@ -195,15 +195,15 @@ Message me for discount TG/RV group -> t.me/moderatormarkets
               </div>
             </div>
 
-            {/* IGV Verified - Comme dans vos images */}
+            {/* CocMarket Verified - Changé de iGV */}
             {village.igvVerified && (
-              <div className="glass-effect rounded-2xl p-4 card-3d border border-orange-400/30">
+              <div className="glass-effect rounded-2xl p-4 card-3d border border-primary/30">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-orange-500 text-white px-3 py-1 rounded-lg font-bold text-sm">
-                    🔒 iGV VERIFIED
+                  <div className="bg-primary text-white px-3 py-1 rounded-lg font-bold text-sm">
+                    🔒 CocMarket VERIFIED
                   </div>
                   <div>
-                    <p className="font-bold text-white">This account has been verified by iGV!</p>
+                    <p className="font-bold text-white">This account has been verified by CocMarket!</p>
                     <p className="text-sm text-muted-foreground">Verification time: {village.verificationDate}</p>
                   </div>
                 </div>
