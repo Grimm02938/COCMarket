@@ -32,13 +32,28 @@ export const StatsCarousel = () => {
 
   return (
     <div className="relative w-full max-w-6xl mx-auto overflow-hidden">
-      {/* Message redirection vers le bas */}
-      <div className="text-center mb-6">
+      {/* Message redirection vers le bas - AMÉLIORÉ */}
+      <div className="text-center mb-8">
         <button 
           onClick={() => document.getElementById('protection-modes')?.scrollIntoView({ behavior: 'smooth' })}
-          className="text-sm text-primary hover:text-cyan-400 transition-colors duration-300 underline decoration-primary/50 hover:decoration-cyan-400/50"
+          className="group flex items-center justify-center space-x-3 mx-auto px-6 py-3 bg-gradient-to-r from-primary/10 to-cyan-500/10 hover:from-primary/20 hover:to-cyan-500/20 border border-primary/30 hover:border-primary/50 rounded-2xl transition-all duration-500 transform hover:scale-105 font-semibold text-lg text-primary hover:text-cyan-400"
         >
-          Comment fonctionnent nos achats sécurisés ? ↓
+          <span>Comment fonctionnent nos achats sécurisés ?</span>
+          <div className="transform group-hover:translate-y-1 transition-transform duration-300">
+            <svg 
+              className="w-6 h-6 text-primary group-hover:text-cyan-400 transition-colors duration-300" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
+            </svg>
+          </div>
         </button>
       </div>
 
