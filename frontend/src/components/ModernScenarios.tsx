@@ -95,9 +95,9 @@ export const ModernScenarios = () => {
         </p>
       </div>
 
-      {/* Carousel 3D détaillé */}
+      {/* Carousel 3D détaillé - HAUTEUR AUGMENTÉE */}
       <div className="perspective-1000 mb-12">
-        <div className="relative h-96 overflow-hidden">
+        <div className="relative h-[500px] overflow-hidden">
           {scenarios.map((scenario, index) => {
             const IconComponent = scenario.icon;
             const isActive = index === currentSlide;
@@ -126,7 +126,7 @@ export const ModernScenarios = () => {
                   {/* Content principal */}
                   <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon group">
                     <div className="relative h-full flex flex-col">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${scenario.color} rounded-2xl flex items-center justify-center mb-6 floating`}>
+                      <div className={`w-16 h-16 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-2xl flex items-center justify-center mb-6 floating`}>
                         <IconComponent className="w-8 h-8 text-white" />
                       </div>
 
@@ -134,14 +134,14 @@ export const ModernScenarios = () => {
                         {scenario.title}
                       </h3>
                       
-                      <p className="text-lg text-muted-foreground mb-6 leading-relaxed flex-grow">
+                      <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                         {scenario.description}
                       </p>
 
-                      <div className="space-y-3">
+                      <div className="space-y-3 mb-6">
                         {scenario.features.map((feature, idx) => (
                           <div key={idx} className="flex items-center space-x-3">
-                            <div className={`w-2 h-2 ${scenario.textColor.replace('text-', 'bg-')} rounded-full animate-pulse`}></div>
+                            <div className={`w-2 h-2 ${scenario.textColor.replace('text-', 'bg-')} rounded-full`}></div>
                             <span className="text-sm text-muted-foreground">{feature}</span>
                           </div>
                         ))}
@@ -149,34 +149,43 @@ export const ModernScenarios = () => {
                     </div>
                   </div>
 
-                  {/* Démo 3D interactive */}
-                  <div className="glass-effect rounded-3xl p-8 card-3d-enhanced group">
+                  {/* Étapes du processus intégrées */}
+                  <div className="glass-effect rounded-3xl p-6 card-3d-enhanced group">
                     <div className="relative h-full">
-                      <h4 className="text-lg font-semibold mb-6 text-center">{scenario.demo.title}</h4>
+                      <h4 className={`text-lg font-semibold mb-6 text-center ${scenario.textColor}`}>
+                        {scenario.title === "Protection Activée" ? "Processus 100% Automatisé" : "Processus Direct"}
+                      </h4>
                       
-                      {/* Interface simulée */}
-                      <div className="space-y-4 h-full flex flex-col justify-center">
-                        {scenario.demo.steps.map((step, idx) => (
-                          <div 
-                            key={idx} 
-                            className="glass-effect rounded-xl p-4 transform-gpu hover:scale-105 transition-all duration-300"
-                            style={{
-                              animationDelay: `${idx * 0.2}s`,
-                              transform: `perspective(500px) rotateX(${isActive ? '0deg' : '10deg'})`
-                            }}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-8 h-8 bg-gradient-to-br ${scenario.color} rounded-full flex items-center justify-center text-white font-bold text-sm`}>
-                                {idx + 1}
+                      {/* Grille des étapes */}
+                      <div className="space-y-4">
+                        {scenario.steps.map((step, idx) => {
+                          const StepIcon = step.icon;
+                          return (
+                            <div 
+                              key={idx} 
+                              className="glass-effect rounded-xl p-4 transform-gpu hover:scale-105 transition-all duration-300 border border-white/10"
+                            >
+                              <div className="flex items-center space-x-4">
+                                {/* Numéro avec icône */}
+                                <div className="relative">
+                                  <div className={`w-12 h-12 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-full flex items-center justify-center text-white font-bold`}>
+                                    {step.number}
+                                  </div>
+                                  <div className={`absolute -top-1 -right-1 w-6 h-6 bg-${scenario.color.includes('green') ? 'green-400' : 'blue-400'}/20 rounded-full flex items-center justify-center`}>
+                                    <StepIcon className={`w-3 h-3 ${scenario.textColor}`} />
+                                  </div>
+                                </div>
+                                
+                                {/* Contenu */}
+                                <div className="flex-1">
+                                  <h5 className={`font-bold ${scenario.textColor} mb-1`}>{step.title}</h5>
+                                  <p className="text-xs text-muted-foreground">{step.description}</p>
+                                </div>
                               </div>
-                              <span className="text-sm">{step}</span>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
-
-                      {/* Effet 3D de profondeur */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                     </div>
                   </div>
                 </div>
