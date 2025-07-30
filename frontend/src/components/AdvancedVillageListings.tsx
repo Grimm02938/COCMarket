@@ -86,11 +86,16 @@ const sortOptions = [
 ];
 
 export const AdvancedVillageListings = () => {
+  const navigate = useNavigate();
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedServer, setSelectedServer] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  const handleViewDetails = (villageId: number) => {
+    navigate(`/village/${villageId}`);
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
