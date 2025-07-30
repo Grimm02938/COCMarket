@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Star, Shield, ShieldX, Clock, ChevronLeft, ChevronRight, Play, Eye, Info, CheckCircle } from "lucide-react";
+import { ArrowLeft, Star, Shield, ShieldX, Clock, ChevronLeft, ChevronRight, Play, Eye, Info, CheckCircle, Crown, Swords, Home, Zap, Users, Trophy, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface VillageDetailsProps {
