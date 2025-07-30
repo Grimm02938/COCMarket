@@ -3,46 +3,45 @@ import { Star } from "lucide-react";
 
 export const ModernTrustScore = () => {
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      <div className="glass-effect rounded-2xl p-6 relative overflow-hidden border border-white/10">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10"></div>
+    <div className="w-full max-w-sm mx-auto">
+      <div className="glass-effect rounded-xl p-4 relative overflow-hidden border border-white/10">
+        {/* Background gradient - moins prononcé */}
+        <div className="absolute inset-0 bg-green-500/5"></div>
         
-        <div className="relative flex items-center space-x-4">
-          {/* Stars */}
+        <div className="relative flex items-center space-x-3">
+          {/* Stars - plus petites */}
           <div className="flex space-x-1">
             {[...Array(5)].map((_, i) => (
               <Star 
                 key={i} 
-                className="w-6 h-6 text-green-400 fill-current drop-shadow-lg animate-pulse" 
-                style={{ animationDelay: `${i * 0.1}s` }}
+                className="w-4 h-4 text-green-400 fill-current" 
               />
             ))}
           </div>
 
-          {/* Score and reviews */}
+          {/* Score and reviews - plus compact */}
           <div className="flex-1">
             <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold text-white">4.9</span>
-              <span className="text-green-400 font-medium">Trustscore</span>
+              <span className="text-xl font-bold text-white">4.9</span>
+              <span className="text-green-400 font-medium text-sm">Trustscore</span>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               200+ reviews
             </div>
           </div>
 
-          {/* Logo CocMarket style */}
-          <div className="w-12 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-lg">
+          {/* Logo CocMarket - plus petit */}
+          <div className="w-8 h-6 bg-primary rounded-md flex items-center justify-center">
             <span className="text-white font-bold text-xs">CM</span>
           </div>
         </div>
 
-        {/* Rating distribution bar */}
-        <div className="mt-4 flex space-x-1">
+        {/* Rating distribution bar - plus fine */}
+        <div className="mt-3 flex space-x-1">
           {[...Array(5)].map((_, i) => (
             <div 
               key={i} 
-              className="h-1.5 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex-1 opacity-80 shadow-sm"
+              className="h-1 bg-green-400 rounded-full flex-1 opacity-80"
               style={{ 
                 width: i === 4 ? '90%' : '8%',
                 opacity: i === 4 ? 1 : 0.3 
@@ -50,9 +49,6 @@ export const ModernTrustScore = () => {
             />
           ))}
         </div>
-
-        {/* Subtle glow effect */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/5 to-emerald-500/5 pointer-events-none"></div>
       </div>
     </div>
   );
