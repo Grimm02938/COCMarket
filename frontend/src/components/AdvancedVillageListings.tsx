@@ -292,6 +292,7 @@ export const AdvancedVillageListings = () => {
                 </div>
                 <Button 
                   size="sm"
+                  onClick={() => handleViewDetails(village.id)}
                   className="bg-primary hover:bg-primary/90 text-white font-medium transform hover:scale-105 transition-all duration-300"
                 >
                   Voir Détails
