@@ -22,14 +22,13 @@ const Index = () => {
 
       {/* Section principale */}
       <main className="space-y-16 pb-16">
-        {/* Avis clients certifiés */}
+        {/* Avis clients certifiés + Trust Score ensemble */}
         <section className="scroll-reveal">
           <CertifiedReviews />
-        </section>
-
-        {/* Trust Score juste en dessous */}
-        <section className="scroll-reveal flex justify-center">
-          <ModernTrustScore />
+          {/* Trust Score directement après les avis */}
+          <div className="mt-6 flex justify-center">
+            <ModernTrustScore />
+          </div>
         </section>
 
         {/* Annonces de villages - NOUVEAU composant */}
