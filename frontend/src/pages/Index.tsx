@@ -35,12 +35,7 @@ const Index = () => {
           <AdvancedVillageListings />
         </section>
 
-        {/* Étapes du processus - NOUVEAU */}
-        <section className="scroll-reveal">
-          <ProcessSteps />
-        </section>
-
-        {/* Scenarios modernes - Modes de livraison */}
+        {/* Scenarios modernes - Modes de livraison avec étapes intégrées */}
         <section className="scroll-reveal">
           <ModernScenarios />
         </section>
