@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Shield, Lock, CreditCard } from "lucide-react";
+import { Shield, Lock, CreditCard, Mail, Clock, ShieldCheck, CheckCircle, User, Key, Settings } from "lucide-react";
 
 export const ModernScenarios = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
