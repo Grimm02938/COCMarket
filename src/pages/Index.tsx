@@ -2,8 +2,10 @@ import { StatsCarousel } from "@/components/StatsCarousel";
 import { CertifiedReviews } from "@/components/CertifiedReviews";
 import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
+  useScrollReveal();
   return (
     <div className="min-h-screen bg-background">
       {/* Header avec le carousel des stats */}
