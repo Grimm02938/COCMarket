@@ -5,7 +5,6 @@ import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
 import { AdvancedVillageListings } from "@/components/AdvancedVillageListings";
-import { ProcessSteps } from "@/components/ProcessSteps";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Index = () => {
