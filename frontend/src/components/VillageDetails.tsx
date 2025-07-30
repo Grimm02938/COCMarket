@@ -249,12 +249,20 @@ Message me for discount TG/RV group -> t.me/moderatormarkets
                   <div className="space-y-4">
                     <h3 className="text-lg font-bold text-primary">Caractéristiques du Compte</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {Object.entries(village.characteristics).map(([key, value]) => (
-                        <div key={key} className="glass-effect rounded-lg p-3 card-3d-mini">
-                          <p className="text-xs text-muted-foreground font-medium">{key}</p>
-                          <p className="font-bold text-primary">{value}</p>
-                        </div>
-                      ))}
+                      {Object.entries(village.characteristics).map(([key, data]) => {
+                        const IconComponent = data.icon;
+                        return (
+                          <div key={key} className="glass-effect rounded-lg p-3 card-3d-mini flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+                              <IconComponent className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-xs text-muted-foreground font-medium">{key}</p>
+                              <p className="font-bold text-white">{data.value}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
