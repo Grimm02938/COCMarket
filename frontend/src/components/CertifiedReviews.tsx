@@ -49,17 +49,9 @@ export const CertifiedReviews = () => {
   const review = reviewsData[currentReview];
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gradient mb-2">
-          Avis Clients Certifiés
-        </h2>
-        <p className="text-muted-foreground">
-          Témoignages vérifiés de nos clients satisfaits
-        </p>
-      </div>
+    <div className="w-full max-w-6xl mx-auto p-6">{/* Agrandi légèrement */}
 
-      {/* Container simplifié sans 3D */}
+      {/* Container simplifié sans 3D - AGRANDI */}
       <div className="relative overflow-hidden">
         <div 
           className="flex transition-transform duration-700 ease-in-out"
@@ -72,40 +64,40 @@ export const CertifiedReviews = () => {
               key={reviewItem.id}
               className="w-full flex-shrink-0 px-4"
             >
-              <div className="glass-effect rounded-2xl p-4 md:p-8 border border-white/10 hover:border-white/20 transition-colors duration-300">
+              <div className="glass-effect rounded-2xl p-6 md:p-10 border border-white/10 hover:border-white/20 transition-colors duration-300">{/* Padding augmenté */}
                 {/* Layout responsive - vertical sur mobile, horizontal sur desktop */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">{/* Gap augmenté */}
                   
-                  {/* Screenshot simplifié */}
+                  {/* Screenshot agrandi */}
                   <div className="order-2 lg:order-1">
-                    <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-cyan-500/20 p-3 lg:p-4">
+                    <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-cyan-500/20 p-4 lg:p-5">{/* Padding augmenté */}
                       <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg flex items-center justify-center relative">
-                        <GamepadIcon className="w-8 h-8 lg:w-16 lg:h-16 text-primary opacity-50" />
-                        <div className="absolute top-2 left-2 text-xs bg-primary/20 backdrop-blur-sm px-2 py-1 rounded-full border border-primary/20">
+                        <GamepadIcon className="w-10 h-10 lg:w-20 lg:h-20 text-primary opacity-50" />{/* Icône agrandie */}
+                        <div className="absolute top-3 left-3 text-sm bg-primary/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-primary/20">{/* Agrandi */}
                           {reviewItem.village}
                         </div>
                       </div>
                     </div>
                     
-                    {/* Features compactes */}
-                    <div className="mt-3 space-y-1">
+                    {/* Features plus visibles */}
+                    <div className="mt-4 space-y-2">{/* Spacing augmenté */}
                       {reviewItem.accountFeatures.slice(0, 2).map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center space-x-2 text-xs">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                        <div key={featureIndex} className="flex items-center space-x-2 text-sm">{/* Taille texte augmentée */}
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>{/* Point agrandi */}
                           <span className="text-muted-foreground">{feature}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Contenu avis simplifié */}
-                  <div className="order-1 lg:order-2 space-y-4">
-                    {/* Rating compact */}
+                  {/* Contenu avis agrandi */}
+                  <div className="order-1 lg:order-2 space-y-5">{/* Spacing augmenté */}
+                    {/* Rating plus visible */}
                     <div className="flex items-center space-x-2">
                       {[...Array(5)].map((_, i) => (
                         <Star 
                           key={i} 
-                          className={`w-4 h-4 ${
+                          className={`w-5 h-5 ${/* Taille augmentée */
                             i < reviewItem.rating 
                               ? 'text-yellow-400 fill-current' 
                               : 'text-muted-foreground'
@@ -117,26 +109,26 @@ export const CertifiedReviews = () => {
                       </span>
                     </div>
 
-                    {/* Commentaire compact */}
-                    <blockquote className="text-sm lg:text-base leading-relaxed">
+                    {/* Commentaire plus visible */}
+                    <blockquote className="text-base lg:text-lg leading-relaxed">{/* Taille augmentée */}
                       "{reviewItem.comment}"
                     </blockquote>
 
-                    {/* User info compact */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium text-sm">
+                    {/* User info agrandi */}
+                    <div className="flex items-center space-x-4">{/* Spacing augmenté */}
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center">{/* Taille augmentée */}
+                        <span className="text-white font-medium">
                           {reviewItem.username.charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-sm">{reviewItem.username}</span>
+                          <span className="font-medium">{reviewItem.username}</span>{/* Font normale */}
                           {reviewItem.verified && (
-                            <Shield className="w-3 h-3 text-green-400" />
+                            <Shield className="w-4 h-4 text-green-400" />{/* Taille augmentée */}
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-muted-foreground">{/* Taille augmentée */}
                           Client certifié
                         </span>
                       </div>
@@ -149,15 +141,15 @@ export const CertifiedReviews = () => {
         </div>
       </div>
 
-      {/* Navigation dots simplifiée */}
-      <div className="flex justify-center mt-6 space-x-2">
+      {/* Navigation dots légèrement agrandies */}
+      <div className="flex justify-center mt-8 space-x-3">{/* Spacing augmenté */}
         {reviewsData.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentReview(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${/* Taille augmentée */
               index === currentReview 
-                ? 'bg-primary w-6' 
+                ? 'bg-primary w-7' /* Largeur augmentée */
                 : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
             }`}
           />
