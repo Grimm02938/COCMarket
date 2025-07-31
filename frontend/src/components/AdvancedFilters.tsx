@@ -228,26 +228,28 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({ onFiltersChange, isOp
                 <button
                   onClick={() => updateFilter('location', filters.location === 'fr' ? '' : 'fr')}
                   className={`
-                    p-3 rounded-lg border transition-all duration-200 text-center font-medium
+                    p-3 rounded-lg border transition-all duration-200 text-center font-medium flex items-center justify-center space-x-2
                     ${filters.location === 'fr' 
                       ? 'border-blue-400 bg-blue-500/20 text-blue-400' 
                       : 'border-gray-700 bg-gray-900/30 text-gray-300 hover:border-gray-600'
                     }
                   `}
                 >
-                  🇫🇷 France
+                  <MapPin className="w-4 h-4" />
+                  <span>France</span>
                 </button>
                 <button
                   onClick={() => updateFilter('location', filters.location === 'other' ? '' : 'other')}
                   className={`
-                    p-3 rounded-lg border transition-all duration-200 text-center font-medium
+                    p-3 rounded-lg border transition-all duration-200 text-center font-medium flex items-center justify-center space-x-2
                     ${filters.location === 'other' 
                       ? 'border-orange-400 bg-orange-500/20 text-orange-400' 
                       : 'border-gray-700 bg-gray-900/30 text-gray-300 hover:border-gray-600'
                     }
                   `}
                 >
-                  🌍 International
+                  <Globe className="w-4 h-4" />
+                  <span>International</span>
                 </button>
               </div>
             </div>
