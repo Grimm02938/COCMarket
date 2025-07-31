@@ -22,13 +22,50 @@ const Index = () => {
 
       {/* Section principale avec espacement optimisé */}
       <main className="space-y-12 pb-12">
-        {/* Avis clients certifiés + Trust Score ensemble avec meilleur espacement */}
+        {/* Section avis clients et confiance - MIEUX STRUCTURÉE */}
         <section className="scroll-reveal px-4">
           <div className="max-w-7xl mx-auto">
-            <CertifiedReviews />
-            {/* Trust Score directement après les avis avec espacement réduit */}
-            <div className="mt-8 flex justify-center">
-              <ModernTrustScore />
+            {/* En-tête de section unifié */}
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gradient mb-4">
+                Confiance & Avis Clients
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Découvrez pourquoi des milliers de clients nous font confiance pour leurs achats gaming
+              </p>
+            </div>
+
+            {/* Container principal avec trust score intégré */}
+            <div className="grid lg:grid-cols-4 gap-8 items-start">
+              
+              {/* Trust Score à gauche - POSITION FIXE */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24">
+                  <ModernTrustScore />
+                  
+                  {/* Statistiques de confiance supplémentaires */}
+                  <div className="mt-6 space-y-3">
+                    <div className="glass-effect rounded-xl p-4 text-center border border-blue-400/20">
+                      <div className="text-2xl font-bold text-blue-400">100%</div>
+                      <div className="text-xs text-muted-foreground">Achats sécurisés</div>
+                    </div>
+                    <div className="glass-effect rounded-xl p-4 text-center border border-green-400/20">
+                      <div className="text-2xl font-bold text-green-400">24/7</div>
+                      <div className="text-xs text-muted-foreground">Support client</div>
+                    </div>
+                    <div className="glass-effect rounded-xl p-4 text-center border border-purple-400/20">
+                      <div className="text-2xl font-bold text-purple-400">&lt;5min</div>
+                      <div className="text-xs text-muted-foreground">Livraison moyenne</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Avis clients à droite - CAROUSEL ÉLARGI */}
+              <div className="lg:col-span-3">
+                <CertifiedReviews />
+              </div>
+
             </div>
           </div>
         </section>
