@@ -38,7 +38,7 @@ export const StatsCarousel = () => {
           onClick={() => document.getElementById('protection-modes')?.scrollIntoView({ behavior: 'smooth' })}
           className="group flex items-center justify-center space-x-3 mx-auto px-6 py-3 bg-gradient-to-r from-primary/10 to-cyan-500/10 hover:from-primary/20 hover:to-cyan-500/20 border border-primary/30 hover:border-primary/50 rounded-2xl transition-all duration-500 transform hover:scale-105 font-semibold text-lg text-primary hover:text-cyan-400"
         >
-          <span>Comment fonctionnent nos achats sécurisés ?</span>
+          <span>Découvrez nos modes de livraison sécurisés</span>
           <div className="transform group-hover:translate-y-1 transition-transform duration-300">
             <svg 
               className="w-6 h-6 text-primary group-hover:text-cyan-400 transition-colors duration-300" 
