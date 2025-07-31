@@ -41,7 +41,7 @@ export const CertifiedReviews = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentReview((prev) => (prev + 1) % reviewsData.length);
-    }, 5000); // Plus rapide et fluide
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -59,126 +59,109 @@ export const CertifiedReviews = () => {
         </p>
       </div>
 
-      <div className="perspective-1000">
-        <div className="relative overflow-hidden">
-          <div 
-            className="flex transition-all duration-1000 ease-in-out transform-gpu"
-            style={{ 
-              transform: `translateX(-${currentReview * 100}%)`,
-              transformStyle: 'preserve-3d'
-            }}
-          >
-            {reviewsData.map((reviewItem, index) => (
-              <div
-                key={reviewItem.id}
-                className="w-full flex-shrink-0"
-                style={{
-                  transform: `perspective(1000px) rotateY(${index === currentReview ? '0deg' : index < currentReview ? '-10deg' : '10deg'}) translateZ(${index === currentReview ? '0px' : '-50px'})`,
-                  transformStyle: 'preserve-3d'
-                }}
-              >
-                <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon transition-all duration-700 transform-gpu mx-4">
-                  <div className="grid lg:grid-cols-2 gap-8 items-center">
-                    {/* Screenshot du village avec effet 3D plus prononcé */}
-                    <div className="relative transform-gpu transition-transform duration-500 hover:rotateY-12">
-                      <div className="aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-cyan-500/20 p-4 shadow-2xl">
-                        <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center relative">
-                          <GamepadIcon className="w-16 h-16 text-primary opacity-50" />
-                          <div className="absolute top-4 left-4 text-xs bg-primary/20 backdrop-blur-sm px-2 py-1 rounded-full border border-primary/20">
-                            {reviewItem.village}
-                          </div>
-                          
-                          {/* Effet de brillance */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1000"></div>
-                         </div>
-                       </div>
-               
-                       {/* Features du compte avec animation */}
-                       <div className="mt-4 space-y-2">
-                         {reviewItem.accountFeatures.map((feature, featureIndex) => (
-                           <div 
-                             key={featureIndex} 
-                             className="flex items-center space-x-2 text-sm transform translate-x-0 hover:translate-x-2 transition-transform duration-300"
-                             style={{ animationDelay: `${featureIndex * 0.1}s` }}
-                           >
-                             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                             <span className="text-muted-foreground">{feature}</span>
-                           </div>
-                         ))}
-                       </div>
-                     </div>
+      {/* Container simplifié sans 3D */}
+      <div className="relative overflow-hidden">
+        <div 
+          className="flex transition-transform duration-700 ease-in-out"
+          style={{ 
+            transform: `translateX(-${currentReview * 100}%)`,
+          }}
+        >
+          {reviewsData.map((reviewItem, index) => (
+            <div
+              key={reviewItem.id}
+              className="w-full flex-shrink-0 px-4"
+            >
+              <div className="glass-effect rounded-2xl p-4 md:p-8 border border-white/10 hover:border-white/20 transition-colors duration-300">
+                {/* Layout responsive - vertical sur mobile, horizontal sur desktop */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center">
+                  
+                  {/* Screenshot simplifié */}
+                  <div className="order-2 lg:order-1">
+                    <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-cyan-500/20 p-3 lg:p-4">
+                      <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg flex items-center justify-center relative">
+                        <GamepadIcon className="w-8 h-8 lg:w-16 lg:h-16 text-primary opacity-50" />
+                        <div className="absolute top-2 left-2 text-xs bg-primary/20 backdrop-blur-sm px-2 py-1 rounded-full border border-primary/20">
+                          {reviewItem.village}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Features compactes */}
+                    <div className="mt-3 space-y-1">
+                      {reviewItem.accountFeatures.slice(0, 2).map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex items-center space-x-2 text-xs">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                          <span className="text-muted-foreground">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                    {/* Contenu de l'avis avec animations fluides */}
-                    <div className="space-y-6 transform-gpu">
-                      {/* Rating avec animation des étoiles */}
-                      <div className="flex items-center space-x-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-5 h-5 transition-all duration-300 hover:scale-110 ${
-                              i < reviewItem.rating 
-                                ? 'text-yellow-400 fill-current drop-shadow-lg animate-pulse' 
-                                : 'text-muted-foreground'
-                            }`} 
-                            style={{ animationDelay: `${i * 0.1}s` }}
-                          />
-                        ))}
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          {reviewItem.rating}/5
+                  {/* Contenu avis simplifié */}
+                  <div className="order-1 lg:order-2 space-y-4">
+                    {/* Rating compact */}
+                    <div className="flex items-center space-x-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`w-4 h-4 ${
+                            i < reviewItem.rating 
+                              ? 'text-yellow-400 fill-current' 
+                              : 'text-muted-foreground'
+                          }`} 
+                        />
+                      ))}
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        {reviewItem.rating}/5
+                      </span>
+                    </div>
+
+                    {/* Commentaire compact */}
+                    <blockquote className="text-sm lg:text-base leading-relaxed">
+                      "{reviewItem.comment}"
+                    </blockquote>
+
+                    {/* User info compact */}
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-sm">
+                          {reviewItem.username.charAt(0).toUpperCase()}
                         </span>
                       </div>
-
-                      {/* Commentaire avec effet de typing */}
-                      <blockquote className="text-lg leading-relaxed relative">
-                        <div className="absolute -left-4 -top-2 text-4xl text-primary/30 font-serif">"</div>
-                        <span className="relative z-10">{reviewItem.comment}</span>
-                        <div className="absolute -right-4 -bottom-2 text-4xl text-primary/30 font-serif">"</div>
-                      </blockquote>
-
-                      {/* User info avec effet hover */}
-                      <div className="flex items-center space-x-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors duration-300">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-neon transition-shadow duration-300">
-                          <span className="text-white font-medium">
-                            {reviewItem.username.charAt(0).toUpperCase()}
-                          </span>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-sm">{reviewItem.username}</span>
+                          {reviewItem.verified && (
+                            <Shield className="w-3 h-3 text-green-400" />
+                          )}
                         </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{reviewItem.username}</span>
-                            {reviewItem.verified && (
-                              <Shield className="w-4 h-4 text-green-400 animate-pulse" />
-                            )}
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            Achat vérifié • Client certifié
-                          </span>
-                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          Client certifié
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Navigation dots avec effet 3D */}
-        <div className="flex justify-center mt-8 space-x-3">
-          {reviewsData.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentReview(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-500 transform hover:scale-125 ${
-                index === currentReview 
-                  ? 'bg-gradient-to-r from-primary to-cyan-500 w-8 shadow-neon' 
-                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-              }`}
-              style={{
-                boxShadow: index === currentReview ? '0 0 20px rgba(139, 92, 246, 0.5)' : 'none'
-              }}
-            />
+            </div>
           ))}
         </div>
+      </div>
+
+      {/* Navigation dots simplifiée */}
+      <div className="flex justify-center mt-6 space-x-2">
+        {reviewsData.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentReview(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentReview 
+                ? 'bg-primary w-6' 
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
