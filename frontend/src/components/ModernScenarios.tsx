@@ -95,33 +95,25 @@ export const ModernScenarios = () => {
         </p>
       </div>
 
-      {/* Carousel 3D détaillé - HAUTEUR AUGMENTÉE */}
-      <div className="perspective-1000 mb-12">
-        <div className="relative h-[500px] overflow-hidden">
-          {scenarios.map((scenario, index) => {
-            const IconComponent = scenario.icon;
-            const isActive = index === currentSlide;
-            
-            return (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-all duration-1000 transform-gpu ${
-                  isActive 
-                    ? 'translate-x-0 opacity-100 scale-100' 
-                    : index < currentSlide 
-                      ? '-translate-x-full opacity-0 scale-95'
-                      : 'translate-x-full opacity-0 scale-95'
-                }`}
-                style={{
-                  transform: `
-                    translateX(${isActive ? '0%' : index < currentSlide ? '-100%' : '100%'}) 
-                    perspective(1000px) 
-                    rotateY(${isActive ? '0deg' : index < currentSlide ? '-15deg' : '15deg'})
-                    scale(${isActive ? '1' : '0.9'})
-                  `,
-                  transformStyle: 'preserve-3d'
-                }}
-              >
+      {/* Carousel horizontal fluide - AMÉLIORATION COULISSEMENT */}
+      <div className="relative mb-12 overflow-hidden rounded-3xl">
+        <div className="relative h-[500px]">
+          <div 
+            className="flex transition-transform duration-1000 ease-in-out h-full"
+            style={{ 
+              transform: `translateX(-${currentSlide * 100}%)`,
+              width: `${scenarios.length * 100}%`
+            }}
+          >
+            {scenarios.map((scenario, index) => {
+              const IconComponent = scenario.icon;
+              
+              return (
+                <div
+                  key={index}
+                  className="w-full flex-shrink-0 px-4"
+                  style={{ width: `${100 / scenarios.length}%` }}
+                >
                 <div className="grid lg:grid-cols-2 gap-8 h-full">
                   {/* Content principal */}
                   <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon group">
