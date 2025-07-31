@@ -7,7 +7,7 @@ echo "=================================="
 cd frontend
 
 echo "📦 Installation des dépendances..."
-npm ci
+npm install
 
 echo "🔨 Build de production..."
 npm run build
