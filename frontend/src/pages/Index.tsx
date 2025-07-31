@@ -14,11 +14,6 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header avec navigation amélioré */}
       <Header />
-      
-      {/* Stats carousel avec espacement ajusté */}
-      <header className="py-6">
-        <StatsCarousel />
-      </header>
 
       {/* Section principale avec espacement optimisé */}
       <main className="space-y-12 pb-12">
