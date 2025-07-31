@@ -235,7 +235,7 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({ onFiltersChange, isOp
                     }
                   `}
                 >
-                  <MapPin className="w-4 h-4" />
+                  <Flag className="w-4 h-4" />
                   <span>France</span>
                 </button>
                 <button
