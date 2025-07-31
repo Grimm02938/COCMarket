@@ -65,8 +65,8 @@ export const Header = () => {
               Mon Compte
             </Button>
             
-            {/* Inscription avec nouvelle couleur - cyan au lieu de primary */}
-            <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium border border-cyan-400/30 hover:border-cyan-400/50 transition-all duration-300 px-4">
+            {/* Inscription avec couleur améliorée - gradient violet/orange */}
+            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white font-medium border border-purple-400/30 hover:border-purple-400/50 transition-all duration-300 px-4 shadow-lg hover:shadow-purple-500/25">
               Inscription
             </Button>
           </div>
