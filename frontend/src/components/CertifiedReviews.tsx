@@ -123,12 +123,12 @@ export const CertifiedReviews = () => {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium">{reviewItem.username}</span>{/* Font normale */}
+                          <span className="font-medium">{reviewItem.username}</span>
                           {reviewItem.verified && (
-                            <Shield className="w-4 h-4 text-green-400" />{/* Taille augmentée */}
+                            <Shield className="w-4 h-4 text-green-400" />
                           )}
                         </div>
-                        <span className="text-sm text-muted-foreground">{/* Taille augmentée */}
+                        <span className="text-sm text-muted-foreground">
                           Client certifié
                         </span>
                       </div>
