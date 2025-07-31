@@ -114,76 +114,77 @@ export const ModernScenarios = () => {
                   className="w-full flex-shrink-0 px-4"
                   style={{ width: `${100 / scenarios.length}%` }}
                 >
-                <div className="grid lg:grid-cols-2 gap-8 h-full">
-                  {/* Content principal */}
-                  <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon group">
-                    <div className="relative h-full flex flex-col">
-                      <div className={`w-16 h-16 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-2xl flex items-center justify-center mb-6 floating`}>
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </div>
+                  <div className="grid lg:grid-cols-2 gap-8 h-full">
+                    {/* Content principal */}
+                    <div className="glass-effect rounded-3xl p-8 card-3d-enhanced hover:shadow-neon group h-full">
+                      <div className="relative h-full flex flex-col">
+                        <div className={`w-16 h-16 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-2xl flex items-center justify-center mb-6 floating`}>
+                          <IconComponent className="w-8 h-8 text-white" />
+                        </div>
 
-                      <h3 className={`text-2xl font-bold mb-4 ${scenario.textColor}`}>
-                        {scenario.title}
-                      </h3>
-                      
-                      <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                        {scenario.description}
-                      </p>
+                        <h3 className={`text-2xl font-bold mb-4 ${scenario.textColor}`}>
+                          {scenario.title}
+                        </h3>
+                        
+                        <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                          {scenario.description}
+                        </p>
 
-                      <div className="space-y-3 mb-6">
-                        {scenario.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center space-x-3">
-                            <div className={`w-2 h-2 ${scenario.textColor.replace('text-', 'bg-')} rounded-full`}></div>
-                            <span className="text-sm text-muted-foreground">{feature}</span>
-                          </div>
-                        ))}
+                        <div className="space-y-3 mb-6">
+                          {scenario.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center space-x-3">
+                              <div className={`w-2 h-2 ${scenario.textColor.replace('text-', 'bg-')} rounded-full`}></div>
+                              <span className="text-sm text-muted-foreground">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Étapes du processus intégrées */}
-                  <div className="glass-effect rounded-3xl p-6 card-3d-enhanced group">
-                    <div className="relative h-full">
-                      <h4 className={`text-lg font-semibold mb-6 text-center ${scenario.textColor}`}>
-                        {scenario.title === "Protection Activée" ? "Processus 100% Automatisé" : "Processus Direct"}
-                      </h4>
-                      
-                      {/* Grille des étapes */}
-                      <div className="space-y-4">
-                        {scenario.steps.map((step, idx) => {
-                          const StepIcon = step.icon;
-                          return (
-                            <div 
-                              key={idx} 
-                              className="glass-effect rounded-xl p-4 transform-gpu hover:scale-105 transition-all duration-300 border border-white/10"
-                            >
-                              <div className="flex items-center space-x-4">
-                                {/* Numéro avec icône */}
-                                <div className="relative">
-                                  <div className={`w-12 h-12 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-full flex items-center justify-center text-white font-bold`}>
-                                    {step.number}
+                    {/* Étapes du processus intégrées */}
+                    <div className="glass-effect rounded-3xl p-6 card-3d-enhanced group h-full">
+                      <div className="relative h-full">
+                        <h4 className={`text-lg font-semibold mb-6 text-center ${scenario.textColor}`}>
+                          {scenario.title === "Protection Activée" ? "Processus 100% Automatisé" : "Processus Direct"}
+                        </h4>
+                        
+                        {/* Grille des étapes */}
+                        <div className="space-y-4">
+                          {scenario.steps.map((step, idx) => {
+                            const StepIcon = step.icon;
+                            return (
+                              <div 
+                                key={idx} 
+                                className="glass-effect rounded-xl p-4 transform-gpu hover:scale-105 transition-all duration-300 border border-white/10"
+                              >
+                                <div className="flex items-center space-x-4">
+                                  {/* Numéro avec icône */}
+                                  <div className="relative">
+                                    <div className={`w-12 h-12 bg-${scenario.color.includes('green') ? 'green-500' : 'blue-500'} rounded-full flex items-center justify-center text-white font-bold`}>
+                                      {step.number}
+                                    </div>
+                                    <div className={`absolute -top-1 -right-1 w-6 h-6 bg-${scenario.color.includes('green') ? 'green-400' : 'blue-400'}/20 rounded-full flex items-center justify-center`}>
+                                      <StepIcon className={`w-3 h-3 ${scenario.textColor}`} />
+                                    </div>
                                   </div>
-                                  <div className={`absolute -top-1 -right-1 w-6 h-6 bg-${scenario.color.includes('green') ? 'green-400' : 'blue-400'}/20 rounded-full flex items-center justify-center`}>
-                                    <StepIcon className={`w-3 h-3 ${scenario.textColor}`} />
+                                  
+                                  {/* Contenu */}
+                                  <div className="flex-1">
+                                    <h5 className={`font-bold ${scenario.textColor} mb-1`}>{step.title}</h5>
+                                    <p className="text-xs text-muted-foreground">{step.description}</p>
                                   </div>
-                                </div>
-                                
-                                {/* Contenu */}
-                                <div className="flex-1">
-                                  <h5 className={`font-bold ${scenario.textColor} mb-1`}>{step.title}</h5>
-                                  <p className="text-xs text-muted-foreground">{step.description}</p>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Navigation */}
