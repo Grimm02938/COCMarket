@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Backend URL from environment
-BACKEND_URL = "https://5856a750-7ab4-43bd-91f7-85a77e02c049.preview.emergentagent.com/api"
+BACKEND_URL = "https://7df38bba-1f70-469e-8d9a-bef3a608a324.preview.emergentagent.com/api"
 
 class GameMarketplaceAPITester:
     def __init__(self):
