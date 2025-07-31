@@ -12,23 +12,16 @@ export const Header = () => {
     <header className="sticky top-0 z-50 glass-effect border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-14">
-          {/* Logo amélioré avec espacement */}
+          {/* Logo simplifié - juste la manette */}
           <div className="flex items-center space-x-4">
-            {/* Logo futuriste que vous aimez */}
             <div className="relative">
-              <Gamepad2 className="h-8 w-8 text-primary" />
+              <Gamepad2 className="h-8 w-8 text-primary floating" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
             </div>
             
-            {/* Logo original amélioré */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-background border border-primary/40 rounded-xl flex items-center justify-center group hover:border-primary/70 transition-all duration-300">
-                <span className="text-primary font-black text-lg font-mono group-hover:text-cyan-400 transition-colors duration-300">CM</span>
-              </div>
-              <div>
-                <span className="text-xl font-black text-white font-mono tracking-wider">CocMarket</span>
-                <div className="text-xs text-primary/70 -mt-1">Gaming Marketplace</div>
-              </div>
+            <div>
+              <span className="text-xl font-black text-white font-mono tracking-wider">CocMarket</span>
+              <div className="text-xs text-primary/70 -mt-1">Gaming Marketplace</div>
             </div>
           </div>
 
@@ -44,7 +37,7 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Navigation - Desktop simplifié */}
+          {/* Navigation - Desktop avec couleur d'inscription changée */}
           <div className="hidden md:flex items-center space-x-3">
             <Button variant="ghost" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium px-4">
               Vendre
@@ -72,7 +65,8 @@ export const Header = () => {
               Mon Compte
             </Button>
             
-            <Button className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white font-medium border border-primary/30 hover:border-primary/50 transition-all duration-300 px-4">
+            {/* Inscription avec nouvelle couleur - cyan au lieu de primary */}
+            <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium border border-cyan-400/30 hover:border-cyan-400/50 transition-all duration-300 px-4">
               Inscription
             </Button>
           </div>
@@ -117,7 +111,7 @@ export const Header = () => {
                   <User className="w-4 h-4 mr-3" />
                   Mon Compte
                 </Button>
-                <Button className="bg-gradient-to-r from-primary to-cyan-500 text-white font-medium">
+                <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium">
                   Inscription
                 </Button>
               </div>
