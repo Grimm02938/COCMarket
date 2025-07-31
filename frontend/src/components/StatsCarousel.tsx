@@ -57,57 +57,59 @@ export const StatsCarousel = () => {
         </button>
       </div>
 
-      {/* Stats carousel avec effet 3D - CORRIGÉ pour 3 slides circulaires */}
-      <div className="perspective-1000 overflow-hidden">
+      {/* Stats carousel avec effet 3D fluide - CORRIGER LES COUPURES */}
+      <div className="relative overflow-hidden rounded-3xl">
         <div className="relative h-40 flex items-center justify-center">
-          <div className="flex items-center justify-center space-x-8">
-            {/* Affichage de 3 slides seulement en rotation circulaire */}
+          <div className="flex items-center justify-center space-x-12">
+            {/* Affichage circulaire fluide sans coupures */}
             {[0, 1, 2].map((offset) => {
               const index = (currentIndex + offset) % statsData.length;
               const stat = statsData[index];
               const StatIcon = stat.icon;
-              const isCenter = offset === 1; // Le slide du milieu est actif
+              const isCenter = offset === 1;
               
               return (
                 <div
-                  key={index}
-                  className={`transition-all duration-1000 transform-gpu ${
-                    isCenter ? 'scale-110 z-20' : 'scale-90 opacity-70 z-10'
+                  key={`${index}-${currentIndex}`}
+                  className={`transition-all duration-700 ease-out transform-gpu ${
+                    isCenter ? 'scale-110 z-20 opacity-100' : 'scale-90 opacity-60 z-10'
                   }`}
                   style={{
                     transform: `
-                      perspective(1000px) 
-                      rotateY(${(offset - 1) * 25}deg) 
-                      translateZ(${isCenter ? '100px' : '0px'})
-                      translateX(${(offset - 1) * 50}px)
+                      translateX(${(offset - 1) * 80}px)
+                      translateZ(${isCenter ? '20px' : '0px'})
+                      scale(${isCenter ? '1.1' : '0.9'})
                     `,
-                    transformStyle: 'preserve-3d'
+                    transformStyle: 'preserve-3d',
+                    transition: 'all 700ms cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 >
                   <div className={`glass-effect rounded-2xl p-6 w-64 h-32 flex flex-col items-center justify-center text-center group hover:shadow-neon transition-all duration-500 ${
-                    isCenter ? 'shadow-neon border border-primary/30' : ''
+                    isCenter ? 'shadow-neon border border-primary/30 bg-gradient-to-br from-primary/10 to-cyan-500/10' : 'bg-gradient-to-br from-gray-900/50 to-gray-800/50'
                   }`}>
-                    <div className={`absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 rounded-2xl transition-opacity duration-500 ${
-                      isCenter ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    }`}></div>
                     
                     <div className="relative z-10 space-y-2">
-                      <div className={`w-8 h-8 mx-auto transition-colors duration-300 floating ${
-                        isCenter ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
+                      <div className={`w-8 h-8 mx-auto transition-all duration-500 ${
+                        isCenter ? 'text-primary scale-110' : 'text-muted-foreground'
                       }`}>
-                        <StatIcon className="w-full h-full" />
+                        <StatIcon className="w-full h-full animate-pulse" />
                       </div>
-                      <div className={`text-2xl font-bold text-gradient ${
-                        isCenter ? 'text-white' : 'text-muted-foreground'
+                      <div className={`text-2xl font-bold transition-all duration-500 ${
+                        isCenter ? 'text-white text-gradient' : 'text-muted-foreground'
                       }`}>
                         {stat.value}
                       </div>
-                      <div className={`text-xs ${
+                      <div className={`text-xs transition-all duration-500 ${
                         isCenter ? 'text-primary' : 'text-muted-foreground'
                       }`}>
                         {stat.label}
                       </div>
                     </div>
+
+                    {/* Effet de brillance pour le slide actif */}
+                    {isCenter && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse rounded-2xl"></div>
+                    )}
                   </div>
                 </div>
               );
