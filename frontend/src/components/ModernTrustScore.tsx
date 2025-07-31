@@ -1,87 +1,86 @@
 
-import { Star, Shield, CheckCircle } from "lucide-react";
+import { Star, Shield, CheckCircle, Users, Trophy } from "lucide-react";
 
 export const ModernTrustScore = () => {
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="glass-effect rounded-2xl p-6 relative overflow-hidden border border-green-400/30 hover:border-green-400/50 transition-all duration-500 bg-gradient-to-br from-green-500/10 to-emerald-500/10">
+    <div className="w-full max-w-6xl mx-auto mb-8">
+      <div className="bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-lg rounded-3xl p-8 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500">
         
-        {/* En-tête avec icône de vérification */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-medium text-green-400">Confiance Vérifiée</span>
-          </div>
-          <CheckCircle className="w-5 h-5 text-green-400" />
-        </div>
-
-        {/* Score principal */}
-        <div className="text-center mb-4">
-          <div className="flex items-center justify-center space-x-2 mb-2">
-            <div className="flex space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className="w-5 h-5 text-yellow-400 fill-current animate-pulse" 
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                />
-              ))}
-            </div>
-          </div>
+        {/* Layout horizontal pour desktop, vertical pour mobile */}
+        <div className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-8">
           
-          <div className="flex items-baseline justify-center space-x-2">
-            <span className="text-3xl font-bold text-white">4.9</span>
-            <span className="text-green-400 font-semibold">/ 5</span>
+          {/* Score principal à gauche */}
+          <div className="flex items-center space-x-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-1 mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className="w-6 h-6 text-yellow-400 fill-current" 
+                  />
+                ))}
+              </div>
+              <div className="text-4xl font-black text-white mb-1">4.9</div>
+              <div className="text-sm font-medium text-gray-400 uppercase tracking-wide">Excellence</div>
+            </div>
+            
+            <div className="h-16 w-px bg-gray-600 hidden lg:block"></div>
+            
+            <div className="text-center lg:text-left">
+              <div className="text-lg font-bold text-green-400 mb-1">Plateforme Certifiée</div>
+              <div className="text-sm text-gray-400">200+ avis vérifiés</div>
+            </div>
           </div>
-          
-          <div className="text-sm text-green-400 font-medium mt-1">
-            Score de Confiance
+
+          {/* Métriques de confiance au centre */}
+          <div className="flex items-center space-x-8">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Shield className="w-6 h-6 text-blue-400" />
+              </div>
+              <div className="text-2xl font-bold text-white">100%</div>
+              <div className="text-xs text-gray-400">Sécurisé</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Users className="w-6 h-6 text-purple-400" />
+              </div>
+              <div className="text-2xl font-bold text-white">5K+</div>
+              <div className="text-xs text-gray-400">Clients</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Trophy className="w-6 h-6 text-orange-400" />
+              </div>
+              <div className="text-2xl font-bold text-white">#1</div>
+              <div className="text-xs text-gray-400">France</div>
+            </div>
           </div>
-          
-          <div className="text-xs text-muted-foreground mt-1">
-            Basé sur 200+ avis vérifiés
+
+          {/* Badge de certification à droite */}
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+            <div className="text-left">
+              <div className="text-sm font-bold text-green-400">Vérifié</div>
+              <div className="text-xs text-gray-400">Gaming Market</div>
+            </div>
           </div>
         </div>
 
-        {/* Barre de progression des avis */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-muted-foreground w-8">5★</span>
-            <div className="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style={{ width: '85%' }}></div>
-            </div>
-            <span className="text-muted-foreground w-8">85%</span>
+        {/* Barre de progression globale */}
+        <div className="mt-6 pt-6 border-t border-gray-700/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-300">Satisfaction globale</span>
+            <span className="text-sm font-bold text-green-400">99.2%</span>
           </div>
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-muted-foreground w-8">4★</span>
-            <div className="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full" style={{ width: '12%' }}></div>
-            </div>
-            <span className="text-muted-foreground w-8">12%</span>
-          </div>
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-muted-foreground w-8">3★</span>
-            <div className="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full" style={{ width: '3%' }}></div>
-            </div>
-            <span className="text-muted-foreground w-8">3%</span>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full" style={{ width: '99.2%' }}></div>
           </div>
         </div>
-
-        {/* Badge CocMarket redesigné */}
-        <div className="text-center">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-400/30 rounded-full px-4 py-2">
-            <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xs">C</span>
-            </div>
-            <span className="text-sm font-semibold text-blue-400">CocMarket Certifié</span>
-          </div>
-        </div>
-
-        {/* Effet de brillance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse rounded-2xl pointer-events-none"></div>
       </div>
     </div>
   );
