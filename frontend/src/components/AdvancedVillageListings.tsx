@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Star, Shield, ShieldX, Clock, Filter, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { useNavigate } from "react-router-dom";
 
 const villagesData = [
@@ -65,17 +66,9 @@ const levelFilters = [
   { label: "HDV 10", value: "10" },
 ];
 
-const priceFilters = [
-  { label: "< 30€", value: "0-30" },
-  { label: "30€ - 60€", value: "30-60" },
-  { label: "60€ - 100€", value: "60-100" },
-  { label: "100€ - 150€", value: "100-150" },
-  { label: "> 150€", value: "150+" },
-];
-
 const serverFilters = [
-  { label: "France", value: "france" },
-  { label: "Other", value: "other" },
+  { label: "France", value: "france", flag: "🇫🇷" },
+  { label: "Other", value: "other", flag: "🌍" },
 ];
 
 const sortOptions = [
@@ -85,11 +78,19 @@ const sortOptions = [
   { label: "Mieux notés", value: "rating" },
 ];
 
+const themeOptions = [
+  { label: "Clash of Clans", value: "coc", color: "from-orange-500 to-yellow-500" },
+  { label: "Clash Royale", value: "cr", color: "from-blue-500 to-purple-500" },
+  { label: "Hay Day", value: "hd", color: "from-green-500 to-blue-500" },
+  { label: "Boom Beach", value: "bb", color: "from-cyan-500 to-blue-500" },
+];
+
 export const AdvancedVillageListings = () => {
   const navigate = useNavigate();
   const [selectedLevel, setSelectedLevel] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedServer, setSelectedServer] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState("");
+  const [priceRange, setPriceRange] = useState([0, 200]);
   const [sortBy, setSortBy] = useState("newest");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -107,75 +108,72 @@ export const AdvancedVillageListings = () => {
           Découvrez notre sélection de villages premium, vérifiés et livrés instantanément
         </p>
 
-        {/* Filtres principaux - Style révolutionnaire */}
+        {/* Filtres principaux améliorés */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {/* Filtre Niveau HDV */}
+          
+          {/* Filtre Prix avec curseur */}
           <div className="glass-effect rounded-xl p-4 card-3d">
-            <label className="block text-sm font-semibold text-primary mb-3">Niveau HDV</label>
-            <div className="grid grid-cols-2 gap-2">
-              {levelFilters.slice(0, 4).map((level) => (
-                <button
-                  key={level.value}
-                  onClick={() => setSelectedLevel(selectedLevel === level.value ? "" : level.value)}
-                  className={`p-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    selectedLevel === level.value
-                      ? 'bg-primary text-white shadow-neon'
-                      : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
-                  }`}
-                >
-                  {level.label}
-                </button>
-              ))}
+            <label className="block text-sm font-semibold text-primary mb-3">
+              Prix: {priceRange[0]}€ - {priceRange[1]}€
+            </label>
+            <div className="px-2">
+              <Slider
+                value={priceRange}
+                onValueChange={setPriceRange}
+                max={200}
+                min={0}
+                step={5}
+                className="w-full"
+              />
             </div>
-            <button
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="w-full mt-2 p-2 text-xs text-primary hover:text-cyan-400 transition-colors"
-            >
-              Voir plus...
-            </button>
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>0€</span>
+              <span>200€+</span>
+            </div>
           </div>
 
-          {/* Filtre Prix */}
+          {/* Sélecteur de thème/jeu */}
           <div className="glass-effect rounded-xl p-4 card-3d">
-            <label className="block text-sm font-semibold text-primary mb-3">Gamme de Prix</label>
+            <label className="block text-sm font-semibold text-primary mb-3">Thème / Jeu</label>
             <div className="space-y-2">
-              {priceFilters.slice(0, 3).map((price) => (
+              {themeOptions.map((theme) => (
                 <button
-                  key={price.value}
-                  onClick={() => setSelectedPrice(selectedPrice === price.value ? "" : price.value)}
+                  key={theme.value}
+                  onClick={() => setSelectedTheme(selectedTheme === theme.value ? "" : theme.value)}
                   className={`w-full p-2 rounded-lg text-sm font-medium transition-all duration-300 text-left ${
-                    selectedPrice === price.value
-                      ? 'bg-primary text-white shadow-neon'
+                    selectedTheme === theme.value
+                      ? `bg-gradient-to-r ${theme.color} text-white shadow-neon`
                       : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
                   }`}
                 >
-                  {price.label}
+                  {theme.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Filtre Serveur */}
+          {/* Localisation FR/Autre */}
           <div className="glass-effect rounded-xl p-4 card-3d">
-            <label className="block text-sm font-semibold text-primary mb-3">Serveur</label>
-            <div className="space-y-2">
+            <label className="block text-sm font-semibold text-primary mb-3">Localisation</label>
+            <div className="grid grid-cols-2 gap-2">
               {serverFilters.map((server) => (
                 <button
                   key={server.value}
                   onClick={() => setSelectedServer(selectedServer === server.value ? "" : server.value)}
-                  className={`w-full p-2 rounded-lg text-sm font-medium transition-all duration-300 text-left ${
+                  className={`p-3 rounded-lg text-center font-medium transition-all duration-300 ${
                     selectedServer === server.value
                       ? 'bg-primary text-white shadow-neon'
                       : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
                   }`}
                 >
-                  {server.label}
+                  <div className="text-lg mb-1">{server.flag}</div>
+                  <div className="text-xs">{server.label}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Trier par */}
+          {/* Trier par - amélioré */}
           <div className="glass-effect rounded-xl p-4 card-3d">
             <label className="block text-sm font-semibold text-primary mb-3 flex items-center">
               <ArrowUpDown className="w-4 h-4 mr-2" />
@@ -184,7 +182,7 @@ export const AdvancedVillageListings = () => {
             <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full p-2 bg-background/50 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              className="w-full p-2.5 bg-background/60 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/60 text-sm transition-all duration-300"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
@@ -193,30 +191,80 @@ export const AdvancedVillageListings = () => {
           </div>
         </div>
 
-        {/* Filtres avancés (si activé) */}
-        {showAdvancedFilters && (
-          <div className="glass-effect rounded-xl p-6 mb-6 card-3d border border-primary/20">
-            <h3 className="text-lg font-semibold mb-4 text-primary">Tous les niveaux HDV</h3>
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-              {levelFilters.map((level) => (
-                <button
-                  key={level.value}
-                  onClick={() => setSelectedLevel(selectedLevel === level.value ? "" : level.value)}
-                  className={`p-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    selectedLevel === level.value
-                      ? 'bg-primary text-white shadow-neon'
-                      : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
-                  }`}
-                >
-                  {level.label}
-                </button>
-              ))}
+        {/* Filtre niveau HDV étendu */}
+        <div className="glass-effect rounded-xl p-4 mb-6 card-3d">
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm font-semibold text-primary">Niveau HDV</label>
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="text-xs text-primary hover:text-cyan-400 transition-colors flex items-center"
+            >
+              <SlidersHorizontal className="w-3 h-3 mr-1" />
+              {showAdvancedFilters ? 'Masquer' : 'Voir tous'}
+            </button>
+          </div>
+          
+          <div className={`grid gap-2 transition-all duration-300 ${
+            showAdvancedFilters ? 'grid-cols-4 md:grid-cols-8' : 'grid-cols-4 md:grid-cols-6'
+          }`}>
+            {(showAdvancedFilters ? levelFilters : levelFilters.slice(0, 6)).map((level) => (
+              <button
+                key={level.value}
+                onClick={() => setSelectedLevel(selectedLevel === level.value ? "" : level.value)}
+                className={`p-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  selectedLevel === level.value
+                    ? 'bg-primary text-white shadow-neon'
+                    : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
+                }`}
+              >
+                {level.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Résumé des filtres actifs */}
+        {(selectedLevel || selectedServer || selectedTheme || priceRange[0] > 0 || priceRange[1] < 200) && (
+          <div className="mb-6 p-4 glass-effect rounded-xl border border-primary/20">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Filtres actifs:</span>
+              {selectedLevel && (
+                <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
+                  HDV {selectedLevel}
+                </span>
+              )}
+              {selectedServer && (
+                <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
+                  {serverFilters.find(s => s.value === selectedServer)?.label}
+                </span>
+              )}
+              {selectedTheme && (
+                <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
+                  {themeOptions.find(t => t.value === selectedTheme)?.label}
+                </span>
+              )}
+              {(priceRange[0] > 0 || priceRange[1] < 200) && (
+                <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
+                  {priceRange[0]}€ - {priceRange[1]}€
+                </span>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedLevel("");
+                  setSelectedServer("");
+                  setSelectedTheme("");
+                  setPriceRange([0, 200]);
+                }}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors ml-2"
+              >
+                Effacer tout
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Grille des villages - AMÉLIORÉE */}
+      {/* Grille des villages - AMÉLIORÉE avec espacement harmonisé */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {villagesData.map((village) => (
           <div
@@ -254,14 +302,14 @@ export const AdvancedVillageListings = () => {
 
               {/* Serveur badge */}
               <div className="absolute bottom-3 left-3 bg-background/80 px-2 py-1 rounded-full text-xs font-medium">
-                {village.server}
+                {serverFilters.find(s => s.value === village.server.toLowerCase())?.flag} {village.server}
               </div>
 
-              {/* Effet de survol */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              {/* Effet de survol plus subtil */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
 
-            {/* Contenu - SIMPLIFIÉ */}
+            {/* Contenu - SIMPLIFIÉ avec meilleur espacement */}
             <div className="p-6 space-y-4">
               <div>
                 <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
@@ -280,7 +328,7 @@ export const AdvancedVillageListings = () => {
                 <span className="text-green-400 font-medium">Livraison {village.delivery}</span>
               </div>
 
-              {/* Prix et action */}
+              {/* Prix et action avec meilleur alignement */}
               <div className="flex items-center justify-between pt-2">
                 <div className="flex items-center space-x-2">
                   <span className="text-xl font-bold text-white">€{village.price}</span>
@@ -303,11 +351,11 @@ export const AdvancedVillageListings = () => {
         ))}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination avec meilleur style */}
       <div className="text-center mt-8">
         <Button 
           variant="outline"
-          className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transform hover:scale-105 transition-all duration-300"
+          className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transform hover:scale-105 transition-all duration-300 px-8"
         >
           Voir plus de villages
         </Button>
