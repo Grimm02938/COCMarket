@@ -111,7 +111,7 @@ export const Header = () => {
                   <User className="w-4 h-4 mr-3" />
                   Mon Compte
                 </Button>
-                <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium">
+                <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-medium shadow-lg">
                   Inscription
                 </Button>
               </div>
