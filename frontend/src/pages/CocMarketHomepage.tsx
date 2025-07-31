@@ -242,51 +242,10 @@ const CocMarketHomepage = () => {
         <div className="absolute bottom-1/4 left-1/4 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl animate-pulse"></div>
       </section>
 
-      {/* Categories Section */}
+      {/* Section Sélecteur de Jeu - NOUVELLE TRANSITION STYLÉE */}
       <section className="py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Catégories Gaming
-              </span>
-            </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Explorez notre sélection de produits gaming pour tous les joueurs
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <Card
-                key={category.category}
-                className="group bg-black/40 backdrop-blur-lg border-gray-800 hover:border-gray-600 transition-all duration-300 cursor-pointer overflow-hidden"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${category.gradient} opacity-60`}></div>
-                  <div className="absolute inset-0 bg-black/40"></div>
-                  
-                  <div className="absolute top-4 left-4">
-                    <div className="text-3xl mb-2">{category.icon}</div>
-                  </div>
-                  
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-lg font-bold text-white mb-1">{category.name}</h3>
-                    <p className="text-sm text-gray-200 opacity-90">{category.description}</p>
-                  </div>
-
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ChevronRight className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <GameSelector />
         </div>
       </section>
 
