@@ -374,6 +374,163 @@ async def get_market_stats():
         featured_products=featured_products_obj
     )
 
+# Sample Data Initialization
+@api_router.post("/init-sample-data")
+async def init_sample_data():
+    """Initialize the database with sample gaming products"""
+    
+    # Clear existing data
+    await db.products.delete_many({})
+    await db.users.delete_many({})
+    await db.reviews.delete_many({})
+    
+    # Sample users
+    sample_users = [
+        User(
+            username="GamerPro2024",
+            email="gamerpro@example.com",
+            location=LocationRegion.FR,
+            trust_score=4.8,
+            total_sales=15,
+            is_verified=True,
+            badges=["Top Seller", "Verified"]
+        ),
+        User(
+            username="EliteTrader",
+            email="elite@example.com", 
+            location=LocationRegion.EU,
+            trust_score=4.9,
+            total_sales=32,
+            is_verified=True,
+            badges=["Elite", "Power Seller"]
+        ),
+        User(
+            username="GameMaster",
+            email="master@example.com",
+            location=LocationRegion.FR,
+            trust_score=4.7,
+            total_sales=8,
+            is_verified=False,
+            badges=["New Seller"]
+        )
+    ]
+    
+    for user in sample_users:
+        await db.users.insert_one(user.dict())
+    
+    # Sample products
+    sample_products = [
+        GameProduct(
+            title="Compte Fortnite Rare - Skins Exclusifs",
+            description="Compte Fortnite avec plus de 50 skins rares incluant Renegade Raider, Black Knight et autres skins exclusifs. Compte niveau 200+ avec de nombreux emotes et gliders rares.",
+            category=ProductCategory.ACCOUNTS,
+            game_name="Fortnite",
+            price=299.99,
+            original_price=399.99,
+            condition=ProductCondition.EXCELLENT,
+            location=LocationRegion.FR,
+            seller_id=sample_users[0].id,
+            is_featured=True,
+            level=200,
+            stats={"skins": 50, "emotes": 30, "gliders": 15, "season_played": 15}
+        ),
+        GameProduct(
+            title="Épée Légendaire +15 Enchantée",
+            description="Épée légendaire forgée avec des matériaux rares. Enchantements: Feu +10, Critique +25%, Durabilité infinie. Parfait pour raids de haut niveau.",
+            category=ProductCategory.ITEMS,
+            game_name="World of Warcraft",
+            price=149.99,
+            condition=ProductCondition.NEW,
+            location=LocationRegion.FR,
+            seller_id=sample_users[1].id,
+            is_featured=True,
+            stats={"damage": 450, "enchantments": 3, "rarity": "Legendary"}
+        ),
+        GameProduct(
+            title="Personnage Paladin Niveau 80",
+            description="Personnage Paladin complètement équipé, niveau 80 avec équipement raid complet. Montures rares incluses. Guilde prestigieuse.",
+            category=ProductCategory.CHARACTERS,
+            game_name="World of Warcraft",
+            price=199.99,
+            condition=ProductCondition.EXCELLENT,
+            location=LocationRegion.EU,
+            seller_id=sample_users[1].id,
+            level=80,
+            rank="Diamond",
+            stats={"ilvl": 280, "mounts": 15, "achievements": 8500}
+        ),
+        GameProduct(
+            title="Skin AK-47 Dragon Lore FN",
+            description="Skin légendaire AK-47 Dragon Lore en condition Factory New. Float exceptionnel. Investissement sûr pour collectionneurs.",
+            category=ProductCategory.SKINS,
+            game_name="CS:GO",
+            price=899.99,
+            condition=ProductCondition.NEW,
+            location=LocationRegion.FR,
+            seller_id=sample_users[0].id,
+            is_featured=True,
+            stats={"float": 0.003, "condition": "Factory New", "stickers": 0}
+        ),
+        GameProduct(
+            title="10,000 V-Bucks Fortnite",
+            description="Pack de V-Bucks pour Fortnite, livraison immédiate sur votre compte. Méthode 100% sécurisée et légale.",
+            category=ProductCategory.CURRENCY,
+            game_name="Fortnite",
+            price=79.99,
+            condition=ProductCondition.NEW,
+            location=LocationRegion.FR,
+            seller_id=sample_users[2].id,
+            stats={"amount": 10000, "bonus": 1500}
+        ),
+        GameProduct(
+            title="Boosting Rang Diamond - League of Legends",
+            description="Service de boosting professionnel de votre rang actuel vers Diamond. Booster expérimenté, discrétion garantie.",
+            category=ProductCategory.BOOSTING,
+            game_name="League of Legends",
+            price=59.99,
+            condition=ProductCondition.NEW,
+            location=LocationRegion.FR,
+            seller_id=sample_users[0].id,
+            stats={"from_rank": "Gold", "to_rank": "Diamond", "estimated_days": 7}
+        )
+    ]
+    
+    for product in sample_products:
+        await db.products.insert_one(product.dict())
+    
+    # Sample reviews
+    sample_reviews = [
+        Review(
+            product_id=sample_products[0].id,
+            reviewer_id=sample_users[1].id,
+            reviewer_username=sample_users[1].username,
+            rating=5,
+            comment="Excellent compte, exactement comme décrit ! Transaction rapide et sécurisée.",
+            is_verified_purchase=True
+        ),
+        Review(
+            product_id=sample_products[1].id,
+            reviewer_id=sample_users[0].id,
+            reviewer_username=sample_users[0].username,
+            rating=5,
+            comment="Épée magnifique, enchantements parfaits. Vendeur très professionnel !",
+            is_verified_purchase=True
+        ),
+        Review(
+            product_id=sample_products[0].id,
+            reviewer_id=sample_users[2].id,
+            reviewer_username=sample_users[2].username,
+            rating=4,
+            comment="Très bon compte, quelques skins en moins que prévu mais globalement satisfait.",
+            is_verified_purchase=True
+        )
+    ]
+    
+    for review in sample_reviews:
+        await db.reviews.insert_one(review.dict())
+    
+    return {"message": "Sample data initialized successfully", "products": len(sample_products), "users": len(sample_users), "reviews": len(sample_reviews)}
+
 # Include the router in the main app
 app.include_router(api_router)
 
