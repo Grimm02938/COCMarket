@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FuturisticHeader from '@/components/FuturisticHeader';
+import { GameSelector } from '@/components/GameSelector';
 
 interface GameProduct {
   id: string;
