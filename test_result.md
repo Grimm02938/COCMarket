@@ -150,6 +150,21 @@ backend:
         agent: "testing"
         comment: "✅ FULLY TESTED - Sample data initialization working perfectly. POST /init-sample-data successfully creates 6 realistic French gaming products (Fortnite accounts, WoW items/characters, CS:GO skins, V-Bucks, boosting services), 3 sample users with trust scores and badges, and 3 sample reviews with verified purchase flags. All data properly structured with French descriptions and gaming-specific stats."
 
+  - task: "Enhanced Seller Profile System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented enhanced seller profile functionality with new User model fields (display_name, bio, location_display, contact_info, seller_stats, is_online, last_seen) and new endpoints: GET /api/sellers/{user_id}/profile (returns seller info with calculated stats), GET /api/sellers/{user_id}/products (returns products by seller). Stats include products_count, average_rating, total_reviews calculated from database."
+      - working: true
+        agent: "testing"
+        comment: "✅ FULLY TESTED - Enhanced seller profile system working perfectly! GET /api/sellers/{user_id}/profile returns complete seller information with enhanced fields (display_name, bio, location_display, contact_info, trust_score) and accurate calculated stats (products_count, average_rating, total_reviews). GET /api/sellers/{user_id}/products returns filtered products by seller. Enhanced User model includes all new fields. Sample data includes 3 realistic French gaming sellers (ProGamer_FR with 3 products and 4.5 rating, EliteTrader, GameMaster) with complete profiles. Stats calculation verified accurate. All existing functionality preserved."
+
 frontend:
   - task: "Futuristic Header Design"
     implemented: true
