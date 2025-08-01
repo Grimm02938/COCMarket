@@ -436,12 +436,22 @@ export const AdvancedVillageListings = () => {
                 <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
                   {village.title}
                 </h3>
-                {/* Seller name next to stars */}
+                {/* Seller name next to stars - clickable */}
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span>{village.rating}</span>
                   <span>({village.reviews} avis)</span>
-                  <span className="text-primary">• {village.seller}</span>
+                  <span>•</span>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Navigate to seller profile when real seller IDs are available
+                      console.log('Navigate to seller:', village.seller);
+                    }}
+                    className="text-primary hover:text-cyan-400 transition-colors duration-200 font-medium"
+                  >
+                    {village.seller}
+                  </button>
                 </div>
               </div>
 
