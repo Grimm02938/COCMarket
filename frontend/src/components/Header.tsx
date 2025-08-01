@@ -122,16 +122,28 @@ export const Header = () => {
                 </Button>
                 <Button variant="outline" className="justify-start text-left border-white/20 px-4">
                   <User className="w-4 h-4 mr-3" />
-                  Mon Compte
+                  {isAuthenticated ? 'Mon Profil' : 'Mon Compte'}
                 </Button>
-                <Button className="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium shadow-lg">
-                  Inscription
-                </Button>
+                {!isAuthenticated && (
+                  <Button 
+                    onClick={() => setIsRegistrationModalOpen(true)}
+                    className="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium shadow-lg"
+                  >
+                    Inscription
+                  </Button>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Registration Modal */}
+      <RegistrationModal
+        isOpen={isRegistrationModalOpen}
+        onClose={() => setIsRegistrationModalOpen(false)}
+        onSuccess={handleRegistrationSuccess}
+      />
     </header>
   );
 };
