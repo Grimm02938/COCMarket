@@ -45,7 +45,7 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Navigation - Desktop avec couleur d'inscription changée */}
+          {/* Navigation - Desktop with conditional rendering */}
           <div className="hidden md:flex items-center space-x-3">
             <Button variant="ghost" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium px-4">
               Vendre
@@ -63,20 +63,25 @@ export const Header = () => {
               </Badge>
             </Button>
             
-            {/* Compte utilisateur plus visible */}
+            {/* Compte utilisateur ou profil */}
             <Button 
               variant="outline" 
               className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transition-all duration-300 font-medium px-4"
               onClick={() => setIsLoginModalOpen(true)}
             >
               <User className="w-4 h-4 mr-2" />
-              Mon Compte
+              {isAuthenticated ? 'Mon Profil' : 'Mon Compte'}
             </Button>
             
-            {/* Inscription avec nouvelle couleur - gradient bleu profond */}
-            <Button className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium border border-blue-500/30 hover:border-blue-500/50 transition-all duration-300 px-4 shadow-lg hover:shadow-blue-400/25">
-              Inscription
-            </Button>
+            {/* Inscription - masqué si connecté */}
+            {!isAuthenticated && (
+              <Button 
+                onClick={() => setIsRegistrationModalOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium border border-blue-500/30 hover:border-blue-500/50 transition-all duration-300 px-4 shadow-lg hover:shadow-blue-400/25"
+              >
+                Inscription
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
