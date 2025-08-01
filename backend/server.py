@@ -297,6 +297,57 @@ async def get_user(user_id: str):
         raise HTTPException(status_code=404, detail="User not found")
     return User(**user)
 
+@api_router.get("/sellers/{user_id}/profile")
+async def get_seller_profile(user_id: str):
+    """Get seller profile with stats and products"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Seller not found")
+    
+    # Get seller products count
+    products_count = await db.products.count_documents({"seller_id": user_id, "is_available": True})
+    
+    # Get average rating from reviews
+    pipeline = [
+        {"$lookup": {
+            "from": "reviews",
+            "localField": "id",
+            "foreignField": "product_id",
+            "as": "reviews"
+        }},
+        {"$match": {"seller_id": user_id}},
+        {"$unwind": {"path": "$reviews", "preserveNullAndEmptyArrays": True}},
+        {"$group": {
+            "_id": None,
+            "avg_rating": {"$avg": "$reviews.rating"},
+            "total_reviews": {"$sum": 1}
+        }}
+    ]
+    
+    rating_result = await db.products.aggregate(pipeline).to_list(None)
+    avg_rating = rating_result[0]["avg_rating"] if rating_result and rating_result[0]["avg_rating"] else 0
+    total_reviews = rating_result[0]["total_reviews"] if rating_result else 0
+    
+    seller_profile = User(**user)
+    
+    return {
+        "seller": seller_profile.dict(),
+        "stats": {
+            "products_count": products_count,
+            "average_rating": round(avg_rating, 1) if avg_rating else 0,
+            "total_reviews": total_reviews
+        }
+    }
+
+@api_router.get("/sellers/{user_id}/products")
+async def get_seller_products(user_id: str, skip: int = 0, limit: int = 20):
+    """Get products by seller"""
+    products = await db.products.find(
+        {"seller_id": user_id, "is_available": True}
+    ).skip(skip).limit(limit).sort("created_at", -1).to_list(None)
+    
+    return [GameProduct(**product) for product in products]
+
 # Review Endpoints
 @api_router.post("/reviews", response_model=Review)
 async def create_review(review: ReviewCreate):
