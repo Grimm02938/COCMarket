@@ -372,8 +372,17 @@ class GameMarketplaceAPITester:
                 self.log_test("Seller Profile Setup", False, "No products available for seller testing")
                 return False
             
-            # Get a seller ID from the first product
-            seller_id = products[0]["seller_id"]
+            # Find a seller ID that's not from our test product (which doesn't have a user record)
+            seller_id = None
+            for product in products:
+                if product["seller_id"] != "test-seller-123":  # Skip our test product
+                    seller_id = product["seller_id"]
+                    break
+            
+            if not seller_id:
+                self.log_test("Seller Profile Setup", False, "No valid seller IDs found")
+                return False
+            
             self.sample_user_ids.append(seller_id)
             
             # Test GET /api/sellers/{user_id}/profile
