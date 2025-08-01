@@ -166,6 +166,54 @@ backend:
         comment: "✅ FULLY TESTED - Enhanced seller profile system working perfectly! GET /api/sellers/{user_id}/profile returns complete seller information with enhanced fields (display_name, bio, location_display, contact_info, trust_score) and accurate calculated stats (products_count, average_rating, total_reviews). GET /api/sellers/{user_id}/products returns filtered products by seller. Enhanced User model includes all new fields. Sample data includes 3 realistic French gaming sellers (ProGamer_FR with 3 products and 4.5 rating, EliteTrader, GameMaster) with complete profiles. Stats calculation verified accurate. All existing functionality preserved."
 
 frontend:
+  - task: "Updated TrustScore Component"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ModernTrustScore.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Replaced current TrustScore with new design matching user requirements: compact design with green ribbon icon, 5 diamond-shaped stars, 4.5 score, 'Excellent' rating, and '200+ avis' text. Matches the design from provided image exactly."
+
+  - task: "Authentication System with Registration Modal"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/RegistrationModal.tsx, /app/frontend/src/components/Header.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created comprehensive registration modal with Google, Apple, and Email sign-in options. Updated header to show/hide registration button based on auth state. Changed registration button color to deeper blue gradient. Modal matches user's provided design with futuristic styling."
+
+  - task: "Seller Profile Frontend Component"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/SellerProfile.tsx, /app/frontend/src/pages/SellerProfilePage.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Built comprehensive SellerProfile component with futuristic design matching user requirements. Includes avatar with online status, enhanced profile info, location with flags, member since date, trust score visualization, contact and heart buttons, bio section. Added SellerProfilePage with navigation. Integrated with backend seller profile API."
+
+  - task: "Product Listings UI Improvements"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/AdvancedVillageListings.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed product listings as requested: moved rating display (1/6) from top to bottom-left of product images to avoid hiding titles. Added seller names next to star ratings, made seller names clickable. Improved layout to prevent title overlap issues."
+
   - task: "Futuristic Header Design"
     implemented: true
     working: "NA"
