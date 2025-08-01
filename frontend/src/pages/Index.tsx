@@ -22,20 +22,10 @@ const Index = () => {
 
       {/* Section principale avec espacement optimisé */}
       <main className="space-y-12 pb-12">
-        {/* Section avis clients seulement - SUPPRESSION DES STATS */}
+        {/* Section avis clients - SANS en-tête */}
         <section className="scroll-reveal px-4">
           <div className="max-w-7xl mx-auto">
-            {/* En-tête simplifié */}
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gradient mb-4">
-                Avis Clients Certifiés
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Témoignages vérifiés de nos clients satisfaits
-              </p>
-            </div>
-
-            {/* Avis clients seulement */}
+            {/* Avis clients directement sans en-tête */}
             <CertifiedReviews />
           </div>
         </section>
