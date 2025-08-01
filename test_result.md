@@ -306,6 +306,10 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Updated TrustScore Component"
+    - "Authentication System with Registration Modal"
+    - "Seller Profile Frontend Component"
+    - "Product Listings UI Improvements"
     - "Futuristic Header Design"
     - "Advanced Filtering System"
     - "Gaming Product Listings"
