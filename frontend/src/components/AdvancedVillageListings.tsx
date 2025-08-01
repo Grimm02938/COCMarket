@@ -436,10 +436,12 @@ export const AdvancedVillageListings = () => {
                 <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
                   {village.title}
                 </h3>
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                {/* Seller name next to stars */}
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span>{village.rating}</span>
                   <span>({village.reviews} avis)</span>
+                  <span className="text-primary">• {village.seller}</span>
                 </div>
               </div>
 
