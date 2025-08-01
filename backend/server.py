@@ -107,12 +107,23 @@ class User(BaseModel):
     member_since: datetime = Field(default_factory=datetime.utcnow)
     is_verified: bool = False
     badges: List[str] = []
+    # Enhanced seller profile fields
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    location_display: Optional[str] = None
+    contact_info: Optional[Dict[str, Any]] = {}
+    seller_stats: Optional[Dict[str, Any]] = {}
+    is_online: bool = False
+    last_seen: Optional[datetime] = None
 
 class UserCreate(BaseModel):
     username: str
     email: str
     location: LocationRegion
     avatar: Optional[str] = None
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    location_display: Optional[str] = None
 
 # Review Models
 class Review(BaseModel):
