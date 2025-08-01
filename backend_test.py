@@ -358,6 +358,179 @@ class GameMarketplaceAPITester:
             self.log_test("Price History", False, f"Error: {str(e)}")
             return False
     
+    def test_seller_profile_endpoints(self):
+        """Test new seller profile functionality"""
+        try:
+            # First get users to test seller profiles
+            response = self.session.get(f"{self.base_url}/products")
+            if response.status_code != 200:
+                self.log_test("Seller Profile Setup", False, "Could not get products to find seller IDs")
+                return False
+            
+            products = response.json()
+            if not products:
+                self.log_test("Seller Profile Setup", False, "No products available for seller testing")
+                return False
+            
+            # Get a seller ID from the first product
+            seller_id = products[0]["seller_id"]
+            self.sample_user_ids.append(seller_id)
+            
+            # Test GET /api/sellers/{user_id}/profile
+            profile_response = self.session.get(f"{self.base_url}/sellers/{seller_id}/profile")
+            
+            if profile_response.status_code == 200:
+                profile_data = profile_response.json()
+                
+                # Check if response has seller and stats
+                if "seller" in profile_data and "stats" in profile_data:
+                    seller = profile_data["seller"]
+                    stats = profile_data["stats"]
+                    
+                    # Check enhanced seller profile fields
+                    enhanced_fields = ["display_name", "bio", "location_display", "contact_info", "trust_score"]
+                    missing_fields = [field for field in enhanced_fields if field not in seller]
+                    
+                    # Check stats fields
+                    stats_fields = ["products_count", "average_rating", "total_reviews"]
+                    missing_stats = [field for field in stats_fields if field not in stats]
+                    
+                    if not missing_fields and not missing_stats:
+                        self.log_test("Get Seller Profile", True, 
+                                    f"Seller: {seller.get('display_name', 'N/A')}, Products: {stats['products_count']}, Rating: {stats['average_rating']}")
+                    else:
+                        self.log_test("Get Seller Profile", False, 
+                                    f"Missing fields: {missing_fields}, Missing stats: {missing_stats}")
+                        return False
+                else:
+                    self.log_test("Get Seller Profile", False, "Missing seller or stats in response")
+                    return False
+            else:
+                self.log_test("Get Seller Profile", False, f"HTTP {profile_response.status_code}: {profile_response.text}")
+                return False
+            
+            # Test GET /api/sellers/{user_id}/products
+            products_response = self.session.get(f"{self.base_url}/sellers/{seller_id}/products")
+            
+            if products_response.status_code == 200:
+                seller_products = products_response.json()
+                
+                if isinstance(seller_products, list):
+                    # Verify all products belong to this seller
+                    all_correct_seller = all(p["seller_id"] == seller_id for p in seller_products)
+                    
+                    if all_correct_seller:
+                        self.log_test("Get Seller Products", True, 
+                                    f"Retrieved {len(seller_products)} products for seller")
+                        return True
+                    else:
+                        self.log_test("Get Seller Products", False, "Some products don't belong to the seller")
+                        return False
+                else:
+                    self.log_test("Get Seller Products", False, "Invalid products format")
+                    return False
+            else:
+                self.log_test("Get Seller Products", False, f"HTTP {products_response.status_code}: {products_response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Seller Profile Endpoints", False, f"Error: {str(e)}")
+            return False
+    
+    def test_enhanced_user_model(self):
+        """Test enhanced user model with new seller profile fields"""
+        try:
+            # Create a test user with enhanced fields
+            test_user = {
+                "username": "TestSellerProfile",
+                "email": "testseller@example.com",
+                "location": "fr",
+                "display_name": "Test Seller Pro",
+                "bio": "Vendeur professionnel de jeux vidéo avec 5 ans d'expérience",
+                "location_display": "Paris, France"
+            }
+            
+            response = self.session.post(f"{self.base_url}/users", json=test_user)
+            
+            if response.status_code == 200:
+                created_user = response.json()
+                
+                # Check if all enhanced fields are present
+                enhanced_fields = ["display_name", "bio", "location_display", "contact_info", "seller_stats", "is_online", "last_seen"]
+                missing_fields = [field for field in enhanced_fields if field not in created_user]
+                
+                if not missing_fields:
+                    # Store user ID for cleanup
+                    self.sample_user_ids.append(created_user["id"])
+                    self.log_test("Enhanced User Model", True, 
+                                f"Created user with enhanced fields: {created_user['display_name']}")
+                    return True
+                else:
+                    self.log_test("Enhanced User Model", False, f"Missing enhanced fields: {missing_fields}")
+                    return False
+            else:
+                self.log_test("Enhanced User Model", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Enhanced User Model", False, f"Error: {str(e)}")
+            return False
+    
+    def test_seller_stats_calculation(self):
+        """Test seller stats calculation accuracy"""
+        if not self.sample_user_ids:
+            self.log_test("Seller Stats Calculation", False, "No user IDs available for testing")
+            return False
+        
+        try:
+            seller_id = self.sample_user_ids[0]
+            
+            # Get seller profile with stats
+            profile_response = self.session.get(f"{self.base_url}/sellers/{seller_id}/profile")
+            
+            if profile_response.status_code == 200:
+                profile_data = profile_response.json()
+                stats = profile_data["stats"]
+                
+                # Get seller products to verify count
+                products_response = self.session.get(f"{self.base_url}/sellers/{seller_id}/products")
+                
+                if products_response.status_code == 200:
+                    seller_products = products_response.json()
+                    actual_product_count = len(seller_products)
+                    
+                    # Verify product count matches
+                    if stats["products_count"] == actual_product_count:
+                        self.log_test("Seller Stats - Product Count", True, 
+                                    f"Product count accurate: {actual_product_count}")
+                        
+                        # Check if rating and review stats are reasonable
+                        avg_rating = stats["average_rating"]
+                        total_reviews = stats["total_reviews"]
+                        
+                        if 0 <= avg_rating <= 5 and total_reviews >= 0:
+                            self.log_test("Seller Stats - Rating & Reviews", True, 
+                                        f"Rating: {avg_rating}/5, Reviews: {total_reviews}")
+                            return True
+                        else:
+                            self.log_test("Seller Stats - Rating & Reviews", False, 
+                                        f"Invalid rating ({avg_rating}) or review count ({total_reviews})")
+                            return False
+                    else:
+                        self.log_test("Seller Stats - Product Count", False, 
+                                    f"Count mismatch: stats={stats['products_count']}, actual={actual_product_count}")
+                        return False
+                else:
+                    self.log_test("Seller Stats Calculation", False, "Could not get seller products for verification")
+                    return False
+            else:
+                self.log_test("Seller Stats Calculation", False, f"HTTP {profile_response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Seller Stats Calculation", False, f"Error: {str(e)}")
+            return False
+    
     def test_error_handling(self):
         """Test error handling for non-existent resources"""
         try:
@@ -367,11 +540,23 @@ class GameMarketplaceAPITester:
             if response.status_code == 404:
                 self.log_test("Error Handling - Non-existent Product", True, 
                             "Properly returns 404 for non-existent product")
-                return True
             else:
                 self.log_test("Error Handling - Non-existent Product", False, 
                             f"Expected 404, got {response.status_code}")
                 return False
+            
+            # Test non-existent seller profile
+            seller_response = self.session.get(f"{self.base_url}/sellers/non-existent-seller/profile")
+            
+            if seller_response.status_code == 404:
+                self.log_test("Error Handling - Non-existent Seller", True, 
+                            "Properly returns 404 for non-existent seller")
+                return True
+            else:
+                self.log_test("Error Handling - Non-existent Seller", False, 
+                            f"Expected 404, got {seller_response.status_code}")
+                return False
+                
         except Exception as e:
             self.log_test("Error Handling", False, f"Error: {str(e)}")
             return False
