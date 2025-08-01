@@ -6,9 +6,9 @@ export const ModernTrustScore = () => {
     <div className="w-full max-w-md mx-auto mb-8">
       <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50 shadow-2xl">
         
-        {/* Left side: Green ribbon icon and stars */}
+        {/* Layout horizontal comme dans l'image */}
         <div className="flex items-center space-x-6">
-          {/* Green ribbon icon */}
+          {/* Left side: Green ribbon icon */}
           <div className="flex-shrink-0">
             <div className="w-16 h-20 bg-gradient-to-b from-green-400 to-green-500 rounded-lg flex items-center justify-center relative">
               {/* White ribbon/award icon */}
@@ -45,7 +45,7 @@ export const ModernTrustScore = () => {
             {/* Large 4.5 number */}
             <div className="text-white text-5xl font-bold mb-2">4.5</div>
             
-            {/* Base sur text and avis count */}
+            {/* Right side - Base sur and 200 reviews */}
             <div className="text-right">
               <div className="text-gray-300 text-sm">Basé sur</div>
               <div className="text-green-400 text-lg font-semibold">Excellent</div>
