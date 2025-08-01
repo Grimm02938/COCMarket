@@ -3,10 +3,18 @@ import { useState } from "react";
 import { Search, User, ShoppingCart, Menu, X, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RegistrationModal } from "./RegistrationModal";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // TODO: Replace with real auth state
+
+  const handleRegistrationSuccess = () => {
+    setIsAuthenticated(true);
+    // TODO: Handle successful registration (update auth context, etc.)
+  };
 
   return (
     <header className="sticky top-0 z-50 glass-effect border-b border-white/10">
