@@ -439,26 +439,28 @@ export const AdvancedVillageListings = () => {
                     </span>
                   )}
                 </div>
-                <Button 
-                  size="sm"
-                  onClick={() => handleViewDetails(village.id)}
-                  className="bg-primary hover:bg-primary/90 text-white font-medium transform hover:scale-105 transition-all duration-300 mr-2"
-                >
-                  Voir Détails
-                </Button>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // TODO: Navigate to seller profile when real seller IDs are available
-                    console.log('Navigate to seller profile:', village.seller);
-                    // navigate(`/seller/${village.sellerId}`);
-                  }}
-                  className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transition-all duration-300"
-                >
-                  Voir Vendeur
-                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm"
+                    onClick={() => handleViewDetails(village.id)}
+                    className="bg-primary hover:bg-primary/90 text-white font-medium transform hover:scale-105 transition-all duration-300"
+                  >
+                    Voir Détails
+                  </Button>
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Navigate to seller profile when real seller IDs are available
+                      console.log('Navigate to seller profile:', village.seller);
+                      // navigate(`/seller/${village.sellerId}`);
+                    }}
+                    className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transition-all duration-300"
+                  >
+                    Voir Vendeur
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
