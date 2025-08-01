@@ -208,8 +208,8 @@ export const AdvancedVillageListings = () => {
               </div>
             </div>
 
-            {/* Filtres principaux pour le jeu sélectionné */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Filtres principaux pour le jeu sélectionné - SUPPRESSION DU 2ème FILTRE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               
               {/* Filtre Prix avec curseur */}
               <div className="glass-effect rounded-xl p-4 card-3d">
@@ -229,38 +229,6 @@ export const AdvancedVillageListings = () => {
                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>0€</span>
                   <span>200€+</span>
-                </div>
-              </div>
-
-              {/* Niveau HDV pour Clash of Clans ou caractéristique principale pour autres jeux */}
-              <div className="glass-effect rounded-xl p-4 card-3d">
-                <label className="block text-sm font-semibold text-primary mb-3 flex items-center">
-                  {selectedGame === 'coc' ? (
-                    <>
-                      <Shield className="w-4 h-4 mr-2" />
-                      Niveau HDV
-                    </>
-                  ) : (
-                    <>
-                      <Star className="w-4 h-4 mr-2" />
-                      Niveau
-                    </>
-                  )}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {levelFilters.slice(0, 4).map((level) => (
-                    <button
-                      key={level.value}
-                      onClick={() => setSelectedLevel(selectedLevel === level.value ? "" : level.value)}
-                      className={`p-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                        selectedLevel === level.value
-                          ? 'bg-primary text-white shadow-neon'
-                          : 'bg-background/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
-                      }`}
-                    >
-                      {level.label}
-                    </button>
-                  ))}
                 </div>
               </div>
 
