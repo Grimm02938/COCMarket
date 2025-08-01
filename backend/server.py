@@ -449,31 +449,46 @@ async def init_sample_data():
     # Sample users
     sample_users = [
         User(
-            username="GamerPro2024",
-            email="gamerpro@example.com",
+            username="ProGamer_FR",
+            email="progamer@example.com",
             location=LocationRegion.FR,
+            display_name="ProGamer_FR",
+            bio="Joueur professionnel depuis 5 ans. Spécialisé dans les jeux de stratégie et les FPS. Transactions sécurisées et livraison rapide garantie.",
+            location_display="France",
             trust_score=4.8,
             total_sales=15,
             is_verified=True,
-            badges=["Top Seller", "Verified"]
+            badges=["Top Seller", "Verified", "Pro Gamer"],
+            is_online=True,
+            contact_info={"discord": "ProGamer#1234", "telegram": "@progamer_fr"}
         ),
         User(
             username="EliteTrader",
             email="elite@example.com", 
             location=LocationRegion.EU,
+            display_name="Elite Trader",
+            bio="Trader expérimenté avec plus de 100 transactions réussies. Expertise en comptes premium et objets rares.",
+            location_display="Europe",
             trust_score=4.9,
             total_sales=32,
             is_verified=True,
-            badges=["Elite", "Power Seller"]
+            badges=["Elite", "Power Seller"],
+            is_online=False,
+            contact_info={"discord": "EliteTrader#5678"}
         ),
         User(
             username="GameMaster",
             email="master@example.com",
             location=LocationRegion.FR,
+            display_name="Game Master",
+            bio="Nouveau vendeur passionné. Prix compétitifs et service client de qualité.",
+            location_display="Paris, France",
             trust_score=4.7,
             total_sales=8,
             is_verified=False,
-            badges=["New Seller"]
+            badges=["New Seller"],
+            is_online=True,
+            contact_info={"email": "master@example.com"}
         )
     ]
     
