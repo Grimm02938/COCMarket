@@ -414,8 +414,15 @@ export const AdvancedVillageListings = () => {
                 )}
               </div>
 
-              {/* Serveur badge */}
-              <div className="absolute bottom-3 left-3 bg-background/80 px-2 py-1 rounded-full text-xs font-medium">
+              {/* Rating moved to bottom-left */}
+              <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-yellow-400">{village.rating}</span>
+                <span className="text-muted-foreground">({village.reviews})</span>
+              </div>
+
+              {/* Serveur badge moved to bottom-right */}
+              <div className="absolute bottom-3 right-3 bg-background/80 px-2 py-1 rounded-full text-xs font-medium">
                 {serverFilters.find(s => s.value === village.server.toLowerCase())?.icon} {village.server}
               </div>
 
