@@ -21,6 +21,28 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+# Database collections
+collections = ["products", "users", "reviews", "price_history", "market_stats", "sessions"]
+
+# Utility functions for authentication
+def hash_password(password: str) -> str:
+    """Hash password with salt"""
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return f"{salt}:{pwd_hash.hex()}"
+
+def verify_password(password: str, hashed: str) -> bool:
+    """Verify password against hash"""
+    try:
+        salt, pwd_hash = hashed.split(':')
+        check_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+        return pwd_hash == check_hash.hex()
+    except:
+        return False
+
+def generate_session_token() -> str:
+    """Generate a secure session token"""
+    return secrets.token_urlsafe(32)
 
 # Create the main app without a prefix
 app = FastAPI(title="CocMarket Gaming Marketplace API")
