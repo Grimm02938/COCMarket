@@ -11,9 +11,9 @@ interface TrustScoreProps {
 }
 
 export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
-  score = 4.2,
-  totalReviews = 1847,
-  verifiedReviews = 1654,
+  score = 4.8,
+  totalReviews = 247,
+  verifiedReviews = 231,
   size = 'medium',
   showDetails = true,
   variant = 'default'
