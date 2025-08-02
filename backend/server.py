@@ -119,11 +119,25 @@ class User(BaseModel):
 class UserCreate(BaseModel):
     username: str
     email: str
-    location: LocationRegion
+    password: str  # Added password field
+    location: LocationRegion = LocationRegion.FRANCE
     avatar: Optional[str] = None
     display_name: Optional[str] = None
     bio: Optional[str] = None
     location_display: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    location_display: Optional[str] = None
+    avatar: Optional[str] = None
+    location: Optional[LocationRegion] = None
 
 # Review Models
 class Review(BaseModel):
