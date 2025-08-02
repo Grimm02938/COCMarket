@@ -1,7 +1,7 @@
 
 import { StatsCarousel } from "@/components/StatsCarousel";
 import { CertifiedReviews } from "@/components/CertifiedReviews";
-import { ModernTrustScore } from "@/components/ModernTrustScore";
+import { RealisticTrustScore } from "@/components/RealisticTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
