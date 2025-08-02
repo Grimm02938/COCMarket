@@ -175,7 +175,6 @@ export const Header = () => {
       <RegistrationModal
         isOpen={isRegistrationModalOpen}
         onClose={() => setIsRegistrationModalOpen(false)}
-        onSuccess={handleRegistrationSuccess}
       />
     </header>
   );
