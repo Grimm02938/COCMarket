@@ -17,9 +17,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const { register, login } = useAuth();
 
   if (!isOpen) return null;
 
