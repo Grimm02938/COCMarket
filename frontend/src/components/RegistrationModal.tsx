@@ -147,14 +147,21 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
           {/* Content */}
           <div className="p-6">
-            {!showEmailForm ? (
-              /* Social Sign-in Options */
+            {/* Error Display */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            {!showEmailForm && !showLoginForm ? (
+              /* Main Options */
               <div className="space-y-4">
-                {/* Google Sign-in */}
+                {/* Google Sign-in - Disabled for now */}
                 <Button
                   onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className="w-full bg-white hover:bg-gray-100 text-gray-900 font-medium py-3 px-4 rounded-xl border-2 border-gray-200 transition-all duration-300 flex items-center justify-center space-x-3"
+                  disabled={true}
+                  className="w-full bg-gray-600 text-gray-400 font-medium py-3 px-4 rounded-xl border-2 border-gray-600 transition-all duration-300 flex items-center justify-center space-x-3 cursor-not-allowed"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -162,19 +169,19 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  <span>Continuer avec Google</span>
+                  <span>Google (bientôt disponible)</span>
                 </Button>
 
-                {/* Apple Sign-in */}
+                {/* Apple Sign-in - Disabled for now */}
                 <Button
                   onClick={handleAppleSignIn}
-                  disabled={isLoading}
-                  className="w-full bg-black hover:bg-gray-900 text-white font-medium py-3 px-4 rounded-xl border-2 border-gray-800 transition-all duration-300 flex items-center justify-center space-x-3"
+                  disabled={true}
+                  className="w-full bg-gray-600 text-gray-400 font-medium py-3 px-4 rounded-xl border-2 border-gray-600 transition-all duration-300 flex items-center justify-center space-x-3 cursor-not-allowed"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
                   </svg>
-                  <span>Continuer avec Apple</span>
+                  <span>Apple (bientôt disponible)</span>
                 </Button>
 
                 {/* Divider */}
@@ -187,28 +194,45 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   </div>
                 </div>
 
-                {/* Email Option */}
+                {/* Email Registration */}
                 <Button
                   onClick={() => setShowEmailForm(true)}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>Continuer avec Email</span>
+                  <span>S'inscrire avec Email</span>
                 </Button>
 
                 {/* Login Link */}
                 <div className="text-center mt-6">
                   <p className="text-gray-400 text-sm">
                     Déjà membre ?{' '}
-                    <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                    <button 
+                      onClick={() => setShowLoginForm(true)}
+                      className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                    >
                       Se connecter
                     </button>
                   </p>
                 </div>
               </div>
-            ) : (
+            ) : showEmailForm ? (
               /* Email Registration Form */
               <form onSubmit={handleEmailSignUp} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Nom d'utilisateur
+                  </label>
+                  <Input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
+                    placeholder="MonPseudo"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-200 mb-2">
                     Adresse email
@@ -261,7 +285,55 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
                 <Button
                   type="button"
-                  onClick={() => setShowEmailForm(false)}
+                  onClick={resetForm}
+                  variant="ghost"
+                  className="w-full text-gray-400 hover:text-white transition-colors"
+                >
+                  ← Retour aux options
+                </Button>
+              </form>
+            ) : (
+              /* Login Form */
+              <form onSubmit={handleEmailLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Adresse email
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Mot de passe
+                  </label>
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 mt-6"
+                >
+                  {isLoading ? 'Connexion...' : 'Se connecter'}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={resetForm}
                   variant="ghost"
                   className="w-full text-gray-400 hover:text-white transition-colors"
                 >
