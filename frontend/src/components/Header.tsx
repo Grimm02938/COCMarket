@@ -77,14 +77,23 @@ export const Header = () => {
             <Button 
               variant="outline" 
               className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transition-all duration-300 font-medium px-4"
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={handleProfileClick}
             >
               <User className="w-4 h-4 mr-2" />
-              {isAuthenticated ? 'Mon Profil' : 'Mon Compte'}
+              {user ? `${user.display_name || user.username}` : 'Mon Compte'}
             </Button>
             
-            {/* Inscription - masqué si connecté */}
-            {!isAuthenticated && (
+            {/* Inscription/Déconnexion */}
+            {user ? (
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                className="border-red-600/40 text-red-400 hover:bg-red-600/15 hover:border-red-600/60 transition-all duration-300 font-medium px-4"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
+            ) : (
               <Button 
                 onClick={() => setIsRegistrationModalOpen(true)}
                 className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-medium border border-blue-500/30 hover:border-blue-500/50 transition-all duration-300 px-4 shadow-lg hover:shadow-blue-400/25"
