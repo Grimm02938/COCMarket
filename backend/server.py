@@ -178,6 +178,28 @@ class AuthResponse(BaseModel):
     token: str
     expires_at: datetime
 
+async def get_current_user(token: str = None) -> User:
+    """Get current user from session token"""
+    if not token:
+        raise HTTPException(status_code=401, detail="No token provided")
+    
+    # Find active session
+    session = await db.sessions.find_one({
+        "token": token, 
+        "is_active": True,
+        "expires_at": {"$gt": datetime.utcnow()}
+    })
+    
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    # Get user
+    user = await db.users.find_one({"id": session["user_id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return User(**user)
+
 # Review Models
 class Review(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
