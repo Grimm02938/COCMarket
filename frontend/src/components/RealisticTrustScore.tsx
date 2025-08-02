@@ -140,27 +140,14 @@ export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
 
           {/* Détails des avis */}
           {showDetails && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Avis vérifiés</span>
-                <span className="text-white font-medium">{verifiedReviews.toLocaleString()}</span>
-              </div>
+            <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-400">Total des avis</span>
                 <span className="text-white font-medium">{totalReviews.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-1.5 mt-3">
-                <div 
-                  className="bg-green-500 h-1.5 rounded-full transition-all duration-1000"
-                  style={{ width: `${(verifiedReviews / totalReviews) * 100}%` }}
-                ></div>
-              </div>
-              <div className="text-xs text-gray-400 text-center">
-                {((verifiedReviews / totalReviews) * 100).toFixed(0)}% d'avis vérifiés
-              </div>
               
               {/* Trend indicator */}
-              <div className="flex items-center justify-center space-x-2 mt-3 pt-3 border-t border-gray-700/50">
+              <div className="flex items-center justify-center space-x-2 pt-3 border-t border-gray-700/50">
                 <TrendingUp className="w-4 h-4 text-green-500" />
                 <span className="text-xs text-green-400 font-medium">+0.2 ce mois-ci</span>
               </div>
