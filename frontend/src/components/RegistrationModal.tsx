@@ -89,7 +89,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEtagt;) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
