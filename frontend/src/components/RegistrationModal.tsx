@@ -64,25 +64,56 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     if (password !== confirmPassword) {
-      alert('Les mots de passe ne correspondent pas');
+      setError('Les mots de passe ne correspondent pas');
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
     
     setIsLoading(true);
     try {
-      // TODO: Implement Firebase Email Sign-up
-      console.log('Email sign-up:', { email, password });
-      // Simulate success for now
-      setTimeout(() => {
-        setIsLoading(false);
-        onSuccess?.();
-        onClose();
-      }, 1000);
+      await register(username, email, password);
+      onSuccess?.();
+      onClose();
     } catch (error) {
-      console.error('Email sign-up error:', error);
+      console.error('Registration error:', error);
+      setError(error instanceof Error ? error.message : 'Erreur lors de l\'inscription');
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Erreur lors de la connexion');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setShowEmailForm(false);
+    setShowLoginForm(false);
+    setEmail('');
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setError('');
   };
 
   return (
