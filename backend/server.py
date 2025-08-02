@@ -99,6 +99,7 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
     email: str
+    password_hash: str  # For storing hashed password
     location: LocationRegion
     avatar: Optional[str] = None  # Base64 encoded
     trust_score: float = 5.0
