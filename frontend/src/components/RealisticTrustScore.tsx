@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Shield, Check } from 'lucide-react';
+import { Star, Shield, Check, TrendingUp } from 'lucide-react';
 
 interface TrustScoreProps {
   score?: number;
@@ -7,6 +7,7 @@ interface TrustScoreProps {
   verifiedReviews?: number;
   size?: 'small' | 'medium' | 'large';
   showDetails?: boolean;
+  variant?: 'default' | 'compact' | 'minimal';
 }
 
 export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
@@ -14,7 +15,8 @@ export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
   totalReviews = 1847,
   verifiedReviews = 1654,
   size = 'medium',
-  showDetails = true
+  showDetails = true,
+  variant = 'default'
 }) => {
   const renderStars = (rating: number) => {
     const stars = [];
@@ -74,11 +76,40 @@ export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
     }
   };
 
+  // Variante compacte pour usage inline
+  if (variant === 'compact') {
+    return (
+      <div className="inline-flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/10">
+        <Shield className="w-4 h-4 text-green-500" />
+        <span className="text-white font-semibold text-sm">{score.toFixed(1)}</span>
+        <div className="flex items-center space-x-0.5">
+          {renderStars(score).slice(0, 5).map((star, i) => 
+            <div key={i} className="scale-75">{star}</div>
+          )}
+        </div>
+        <span className="text-xs text-gray-400">({totalReviews.toLocaleString()})</span>
+      </div>
+    );
+  }
+
+  // Variante minimale pour petits espaces
+  if (variant === 'minimal') {
+    return (
+      <div className="flex items-center space-x-2">
+        <span className="text-white font-bold text-lg">{score.toFixed(1)}</span>
+        <div className="flex items-center space-x-0.5">
+          {renderStars(score)}
+        </div>
+        <span className="text-xs text-gray-400">({totalReviews.toLocaleString()})</span>
+      </div>
+    );
+  }
+
   const classes = getSizeClasses();
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:border-white/20 transition-all duration-300">
+      <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10">
         <div className={`${classes.container}`}>
           {/* Header avec badge Trustpilot-style */}
           <div className="flex items-center justify-between mb-4">
@@ -126,6 +157,12 @@ export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
               </div>
               <div className="text-xs text-gray-400 text-center">
                 {((verifiedReviews / totalReviews) * 100).toFixed(0)}% d'avis vérifiés
+              </div>
+              
+              {/* Trend indicator */}
+              <div className="flex items-center justify-center space-x-2 mt-3 pt-3 border-t border-gray-700/50">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-xs text-green-400 font-medium">+0.2 ce mois-ci</span>
               </div>
             </div>
           )}
