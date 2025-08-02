@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RegistrationModalProps {
   isOpen: boolean;
