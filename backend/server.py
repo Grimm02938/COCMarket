@@ -357,20 +357,143 @@ async def get_popular_games():
     games = await db.products.aggregate(pipeline).to_list(None)
     return [{"name": game["_id"], "product_count": game["count"]} for game in games]
 
-# User Endpoints
-@api_router.post("/users", response_model=User)
-async def create_user(user: UserCreate):
-    user_dict = user.dict()
+# Authentication Endpoints
+@api_router.post("/auth/register", response_model=AuthResponse)
+async def register_user(user_data: UserCreate):
+    """Register a new user"""
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    existing_username = await db.users.find_one({"username": user_data.username})
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Username already taken")
+    
+    # Create user with hashed password
+    user_dict = user_data.dict()
+    password = user_dict.pop("password")
+    user_dict["password_hash"] = hash_password(password)
+    
     user_obj = User(**user_dict)
     await db.users.insert_one(user_obj.dict())
-    return user_obj
+    
+    # Create session
+    token = generate_session_token()
+    expires_at = datetime.utcnow().replace(microsecond=0) + timedelta(days=30)  # 30 day session
+    
+    session = UserSession(
+        user_id=user_obj.id,
+        token=token,
+        expires_at=expires_at
+    )
+    await db.sessions.insert_one(session.dict())
+    
+    # Return user without password_hash
+    user_dict = user_obj.dict()
+    user_dict.pop("password_hash", None)
+    safe_user = User(**user_dict, password_hash="***")  # Hidden in response
+    
+    return AuthResponse(
+        user=safe_user,
+        token=token,
+        expires_at=expires_at
+    )
 
-@api_router.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: str):
-    user = await db.users.find_one({"id": user_id})
+@api_router.post("/auth/login", response_model=AuthResponse)
+async def login_user(login_data: UserLogin):
+    """Login user with email and password"""
+    user = await db.users.find_one({"email": login_data.email})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return User(**user)
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    if not verify_password(login_data.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Deactivate old sessions
+    await db.sessions.update_many(
+        {"user_id": user["id"], "is_active": True},
+        {"$set": {"is_active": False}}
+    )
+    
+    # Create new session
+    token = generate_session_token()
+    expires_at = datetime.utcnow().replace(microsecond=0) + timedelta(days=30)  # 30 day session
+    
+    session = UserSession(
+        user_id=user["id"],
+        token=token,
+        expires_at=expires_at
+    )
+    await db.sessions.insert_one(session.dict())
+    
+    # Return user without password_hash
+    user.pop("password_hash", None)
+    safe_user = User(**user, password_hash="***")  # Hidden in response
+    
+    return AuthResponse(
+        user=safe_user,
+        token=token,
+        expires_at=expires_at
+    )
+
+@api_router.post("/auth/logout")
+async def logout_user(token: str):
+    """Logout user by deactivating session"""
+    await db.sessions.update_one(
+        {"token": token},
+        {"$set": {"is_active": False}}
+    )
+    return {"message": "Successfully logged out"}
+
+@api_router.get("/auth/me", response_model=User)
+async def get_current_user_profile(token: str):
+    """Get current user profile"""
+    user = await get_current_user(token)
+    # Remove password_hash from response
+    user_dict = user.dict()
+    user_dict["password_hash"] = "***"  # Hidden
+    return User(**user_dict)
+
+@api_router.put("/auth/profile", response_model=User)
+async def update_user_profile(token: str, user_update: UserUpdate):
+    """Update current user profile"""
+    current_user = await get_current_user(token)
+    
+    # Prepare update data
+    update_data = {}
+    for field, value in user_update.dict(exclude_unset=True).items():
+        if value is not None:
+            update_data[field] = value
+    
+    if update_data:
+        # Check if username is being updated and is unique
+        if "username" in update_data:
+            existing = await db.users.find_one({
+                "username": update_data["username"],
+                "id": {"$ne": current_user.id}
+            })
+            if existing:
+                raise HTTPException(status_code=400, detail="Username already taken")
+        
+        # Check if email is being updated and is unique
+        if "email" in update_data:
+            existing = await db.users.find_one({
+                "email": update_data["email"],
+                "id": {"$ne": current_user.id}
+            })
+            if existing:
+                raise HTTPException(status_code=400, detail="Email already registered")
+        
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": update_data}
+        )
+    
+    # Return updated user
+    updated_user = await db.users.find_one({"id": current_user.id})
+    updated_user.pop("password_hash", None)
+    return User(**updated_user, password_hash="***")
 
 @api_router.get("/sellers/{user_id}/profile")
 async def get_seller_profile(user_id: str):
