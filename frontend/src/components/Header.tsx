@@ -139,11 +139,25 @@ export const Header = () => {
                     0
                   </Badge>
                 </Button>
-                <Button variant="outline" className="justify-start text-left border-white/20 px-4">
+                <Button 
+                  variant="outline" 
+                  className="justify-start text-left border-white/20 px-4"
+                  onClick={handleProfileClick}
+                >
                   <User className="w-4 h-4 mr-3" />
-                  {isAuthenticated ? 'Mon Profil' : 'Mon Compte'}
+                  {user ? `${user.display_name || user.username}` : 'Mon Compte'}
                 </Button>
-                {!isAuthenticated && (
+                
+                {user ? (
+                  <Button 
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="justify-start text-left border-red-600/40 text-red-400 hover:bg-red-600/15 px-4"
+                  >
+                    <LogOut className="w-4 h-4 mr-3" />
+                    Déconnexion
+                  </Button>
+                ) : (
                   <Button 
                     onClick={() => setIsRegistrationModalOpen(true)}
                     className="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium shadow-lg"
