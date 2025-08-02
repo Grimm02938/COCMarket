@@ -9,13 +9,21 @@ import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // TODO: Replace with real auth state
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const handleRegistrationSuccess = () => {
-    setIsAuthenticated(true);
-    // TODO: Handle successful registration (update auth context, etc.)
+  const handleProfileClick = () => {
+    if (user) {
+      navigate('/profile');
+    } else {
+      setIsRegistrationModalOpen(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMenuOpen(false);
   };
 
   return (
