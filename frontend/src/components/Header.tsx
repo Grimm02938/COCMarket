@@ -1,9 +1,11 @@
 
 import { useState } from "react";
-import { Search, User, ShoppingCart, Menu, X, Gamepad2 } from "lucide-react";
+import { Search, User, ShoppingCart, Menu, X, Gamepad2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RegistrationModal } from "./RegistrationModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
