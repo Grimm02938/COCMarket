@@ -366,6 +366,15 @@ const ProductDetails = () => {
           </div>
         </div>
 
+        {/* Trust Score Section */}
+        <div className="mt-8 mb-8">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-white mb-2">Confiance et Sécurité CocMarket</h3>
+            <p className="text-gray-400">Notre score de confiance basé sur les avis vérifiés de nos utilisateurs</p>
+          </div>
+          <RealisticTrustScore size="medium" />
+        </div>
+
         {/* Product Details Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="description" className="w-full">
