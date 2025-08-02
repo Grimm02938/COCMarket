@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,6 +10,8 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime
 from enum import Enum
+import hashlib
+import secrets
 
 
 ROOT_DIR = Path(__file__).parent
