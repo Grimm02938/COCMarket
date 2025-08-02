@@ -20,6 +20,7 @@ class GameMarketplaceAPITester:
         self.test_results = []
         self.sample_product_ids = []
         self.sample_user_ids = []
+        self.auth_tokens = []  # Store authentication tokens for testing
         
     def log_test(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
         """Log test results"""
