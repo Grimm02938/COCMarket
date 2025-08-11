@@ -1,0 +1,29 @@
+🧠 Prompt pour intégrer Stripe (paiement en ligne sécurisé) à ton site :
+
+Bonjour,
+
+J’aimerais que vous m’aidiez à intégrer Stripe sur mon site existant pour permettre des paiements bancaires sécurisés (par carte).
+
+✅ Contexte :
+• Le site est déjà fonctionnel, en ligne, et déployé via Firebase.
+• La vente concerne des comptes de jeux ou de services (produits numériques).
+• J’ai déjà un compte Stripe validé, et je suis connecté au Dashboard.
+• L’intégration doit être simple, discrète, et ne surtout pas casser l’interface actuelle (notamment la page de détail des offres que je veux conserver).
+
+🎯 Objectif :
+• Ajouter un bouton “Acheter” ou “Payer” sur chaque carte d’offre.
+• Lorsqu’un utilisateur clique, il est redirigé vers une page de paiement Stripe Checkout sécurisée.
+• Après paiement réussi, il est redirigé vers une page de confirmation (ou une page “Merci”).
+
+🔐 Côté sécurité & logique :
+• Le paiement déclenche l’envoi d’un email ou d’un message avec les détails du compte acheté (si possible).
+• Il n’est pas nécessaire d’avoir un panier ou de gérer plusieurs produits : chaque compte est vendu individuellement.
+
+🧩 Techniquement :
+• J’utilise Firebase pour l’hébergement.
+• Le frontend est dans un dossier /frontend avec package.json et firebase.json.
+• Je suis prêt à connecter Stripe avec mes clés publishableKey et secretKey. Cleebpublique : pk_live_51RqyOwFsrP029t76six64eFyLCFMGmib98fSp9KnzT32IPv3FMH9FPmndf1OSTNcLPM8mVL4g1m4SsOvJBCTlUCL00eVIHsvge clé privée :  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 , j’aimerais aussi que pour le haut de page pour le trustscore tu ne laisses que les étoiles, le vérifié, et la satisfaction globale mais que tu les arrange bien et pas forcément dans le même rectangle parce que ça risque de laisser un vide , ensuite le texte « avis clients certifiés, témoignages vérifiés par nos clients satisfaits «  tu l’enlèves complètement 
+
+-problème affiche inscription pc
+-1/6
+- base de donnée inscription 
