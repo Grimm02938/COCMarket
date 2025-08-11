@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import FuturisticHeader from '@/components/FuturisticHeader';
 import { RealisticTrustScore } from '@/components/RealisticTrustScore';
+import { createCheckoutSession, redirectToCheckout } from '@/services/stripeService';
 
 interface GameProduct {
   id: string;
@@ -64,12 +65,36 @@ const ProductDetails = () => {
   const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchProductData(id);
     }
   }, [id]);
+
+  const handlePurchase = async () => {
+    if (!product) return;
+    
+    setIsProcessingPayment(true);
+    
+    try {
+      const currentUrl = window.location.origin;
+      const paymentData = {
+        product_id: product.id,
+        success_url: `${currentUrl}/payment-success?product_id=${product.id}`,
+        cancel_url: `${currentUrl}/products/${product.id}`,
+      };
+
+      const session = await createCheckoutSession(paymentData);
+      await redirectToCheckout(session.checkout_session_id);
+    } catch (error) {
+      console.error('Erreur lors du paiement:', error);
+      alert('Erreur lors de l\'initialisation du paiement. Veuillez réessayer.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   const fetchProductData = async (productId: string) => {
     setLoading(true);
@@ -318,10 +343,17 @@ const ProductDetails = () => {
               {/* Action Buttons */}
               <div className="space-y-3">
                 <Button 
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3"
+                  onClick={handlePurchase}
+                  disabled={isProcessingPayment || !product.is_available}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
                 >
-                  Acheter maintenant - {formatPrice(product.price)}
+                  {isProcessingPayment 
+                    ? 'Redirection vers le paiement...' 
+                    : product.is_available 
+                      ? `Acheter maintenant - ${formatPrice(product.price)}` 
+                      : 'Produit non disponible'
+                  }
                 </Button>
                 
                 <div className="grid grid-cols-2 gap-3">

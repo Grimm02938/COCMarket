@@ -1,0 +1,19 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "CocMarket est une plateforme moderne de vente et d'achat de villages Clash of Clans avec un système de paiement sécurisé et une livraison instantanée.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@stripe/stripe-js": "^7.8.0",
+    "stripe": "^18.4.0"
+  }
+}

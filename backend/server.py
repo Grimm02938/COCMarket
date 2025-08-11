@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 import hashlib
 import secrets
+import stripe
 
 
 ROOT_DIR = Path(__file__).parent
@@ -21,6 +22,9 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Configuration Stripe
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 # Database collections
 collections = ["products", "users", "reviews", "price_history", "market_stats", "sessions"]
 
@@ -241,6 +245,12 @@ class StatusCheck(BaseModel):
 
 class StatusCheckCreate(BaseModel):
     client_name: str
+
+# Stripe Payment Models
+class PaymentRequest(BaseModel):
+    product_id: str
+    success_url: str
+    cancel_url: str
 
 # Basic routes
 @api_router.get("/")
@@ -635,6 +645,82 @@ async def get_market_stats():
     )
 
 # Sample Data Initialization
+# Stripe Payment Endpoints
+@api_router.post("/create-checkout-session")
+async def create_checkout_session(payment_request: PaymentRequest):
+    """Créer une session de paiement Stripe"""
+    try:
+        # Récupérer le produit
+        product = await db.products.find_one({"id": payment_request.product_id})
+        if not product:
+            raise HTTPException(status_code=404, detail="Produit non trouvé")
+        
+        # Créer la session Stripe Checkout
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {
+                            'name': product['title'],
+                            'description': f"{product['game_name']} - {product['description'][:100]}...",
+                            'images': ['https://images.unsplash.com/photo-1551698618-1dfe5d97d256'],
+                        },
+                        'unit_amount': int(product['price'] * 100),  # Stripe utilise les centimes
+                    },
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=payment_request.success_url,
+            cancel_url=payment_request.cancel_url,
+            metadata={
+                'product_id': product['id'],
+                'product_title': product['title'],
+                'game_name': product['game_name'],
+            }
+        )
+        
+        return {"checkout_session_id": checkout_session.id, "url": checkout_session.url}
+        
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=f"Erreur Stripe: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur serveur: {str(e)}")
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Webhook pour gérer les événements Stripe"""
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    
+    try:
+        # Vérifier la signature (en production, utilisez un webhook secret)
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_test')
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Payload invalide")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Signature invalide")
+    
+    # Traiter l'événement
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        
+        # Ici vous pouvez envoyer l'email avec les détails du compte
+        # ou traiter la commande
+        logger.info(f"Paiement réussi pour le produit {session['metadata']['product_id']}")
+        
+        # Marquer le produit comme vendu (optionnel)
+        await db.products.update_one(
+            {"id": session['metadata']['product_id']},
+            {"$set": {"is_available": False, "sold_at": datetime.utcnow()}}
+        )
+    
+    return {"status": "success"}
+
 @api_router.post("/init-sample-data")
 async def init_sample_data():
     """Initialize the database with sample gaming products"""
