@@ -371,13 +371,17 @@ async def get_popular_games():
 @api_router.post("/auth/register", response_model=AuthResponse)
 async def register_user(user_data: UserCreate):
     """Register a new user"""
+    logger.info(f"📝 Tentative d'inscription: {user_data.username} ({user_data.email})")
+    
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
+        logger.warning(f"❌ Email déjà enregistré: {user_data.email}")
         raise HTTPException(status_code=400, detail="Email already registered")
     
     existing_username = await db.users.find_one({"username": user_data.username})
     if existing_username:
+        logger.warning(f"❌ Nom d'utilisateur déjà pris: {user_data.username}")
         raise HTTPException(status_code=400, detail="Username already taken")
     
     # Create user with hashed password
@@ -385,8 +389,16 @@ async def register_user(user_data: UserCreate):
     password = user_dict.pop("password")
     user_dict["password_hash"] = hash_password(password)
     
+    logger.info(f"🔐 Mot de passe hashé pour: {user_data.username}")
+    
     user_obj = User(**user_dict)
-    await db.users.insert_one(user_obj.dict())
+    
+    try:
+        result = await db.users.insert_one(user_obj.dict())
+        logger.info(f"✅ Utilisateur créé dans la DB: {result.inserted_id}")
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de l'insertion en DB: {e}")
+        raise HTTPException(status_code=500, detail="Database error during user creation")
     
     # Create session
     token = generate_session_token()
@@ -397,12 +409,20 @@ async def register_user(user_data: UserCreate):
         token=token,
         expires_at=expires_at
     )
-    await db.sessions.insert_one(session.dict())
+    
+    try:
+        session_result = await db.sessions.insert_one(session.dict())
+        logger.info(f"✅ Session créée: {session_result.inserted_id}")
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la création de session: {e}")
+        raise HTTPException(status_code=500, detail="Database error during session creation")
     
     # Return user without password_hash
     user_dict = user_obj.dict()
     user_dict.pop("password_hash", None)
     safe_user = User(**user_dict, password_hash="***")  # Hidden in response
+    
+    logger.info(f"🎉 Inscription réussie pour: {user_data.username}")
     
     return AuthResponse(
         user=safe_user,
@@ -413,18 +433,27 @@ async def register_user(user_data: UserCreate):
 @api_router.post("/auth/login", response_model=AuthResponse)
 async def login_user(login_data: UserLogin):
     """Login user with email and password"""
+    logger.info(f"🔑 Tentative de connexion: {login_data.email}")
+    
     user = await db.users.find_one({"email": login_data.email})
     if not user:
+        logger.warning(f"❌ Utilisateur non trouvé: {login_data.email}")
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    logger.info(f"👤 Utilisateur trouvé: {user['username']}")
     
     if not verify_password(login_data.password, user["password_hash"]):
+        logger.warning(f"❌ Mot de passe incorrect pour: {login_data.email}")
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
+    logger.info(f"✅ Mot de passe vérifié pour: {user['username']}")
+    
     # Deactivate old sessions
-    await db.sessions.update_many(
+    old_sessions_result = await db.sessions.update_many(
         {"user_id": user["id"], "is_active": True},
         {"$set": {"is_active": False}}
     )
+    logger.info(f"🔄 Anciennes sessions désactivées: {old_sessions_result.modified_count}")
     
     # Create new session
     token = generate_session_token()
@@ -435,11 +464,19 @@ async def login_user(login_data: UserLogin):
         token=token,
         expires_at=expires_at
     )
-    await db.sessions.insert_one(session.dict())
+    
+    try:
+        session_result = await db.sessions.insert_one(session.dict())
+        logger.info(f"✅ Nouvelle session créée: {session_result.inserted_id}")
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la création de session: {e}")
+        raise HTTPException(status_code=500, detail="Database error during session creation")
     
     # Return user without password_hash
     user.pop("password_hash", None)
     safe_user = User(**user, password_hash="***")  # Hidden in response
+    
+    logger.info(f"🎉 Connexion réussie pour: {user['username']}")
     
     return AuthResponse(
         user=safe_user,

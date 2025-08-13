@@ -66,23 +66,29 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     e.preventDefault();
     setError('');
     
+    console.log('🚀 Début de l\'inscription:', { username, email, hasPassword: !!password });
+    
     if (password !== confirmPassword) {
+      console.warn('⚠️ Mots de passe non identiques');
       setError('Les mots de passe ne correspondent pas');
       return;
     }
     
     if (password.length < 6) {
+      console.warn('⚠️ Mot de passe trop court');
       setError('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
     
     setIsLoading(true);
     try {
+      console.log('📡 Envoi de la requête d\'inscription...');
       await register(username, email, password);
+      console.log('✅ Inscription réussie');
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ Erreur lors de l\'inscription:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de l\'inscription');
     } finally {
       setIsLoading(false);
@@ -93,13 +99,17 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     e.preventDefault();
     setError('');
     
+    console.log('🔑 Début de la connexion:', { email, hasPassword: !!password });
+    
     setIsLoading(true);
     try {
+      console.log('📡 Envoi de la requête de connexion...');
       await login(email, password);
+      console.log('✅ Connexion réussie');
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Erreur lors de la connexion:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de la connexion');
     } finally {
       setIsLoading(false);
@@ -118,7 +128,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-16 pb-8"
       onClick={onClose}
     >
       {/* Backdrop */}
