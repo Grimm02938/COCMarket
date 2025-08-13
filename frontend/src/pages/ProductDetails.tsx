@@ -79,6 +79,8 @@ const ProductDetails = () => {
     setIsProcessingPayment(true);
     
     try {
+      console.log('Starting purchase process for product:', product.id);
+      
       const currentUrl = window.location.origin;
       const paymentData = {
         product_id: product.id,
@@ -86,11 +88,19 @@ const ProductDetails = () => {
         cancel_url: `${currentUrl}/products/${product.id}`,
       };
 
+      console.log('Payment data:', paymentData);
       const session = await createCheckoutSession(paymentData);
+      
+      if (!session || !session.checkout_session_id) {
+        throw new Error('Session de paiement invalide reçue du serveur');
+      }
+      
+      console.log('Redirecting to Stripe checkout...');
       await redirectToCheckout(session.checkout_session_id);
     } catch (error) {
       console.error('Erreur lors du paiement:', error);
-      alert('Erreur lors de l\'initialisation du paiement. Veuillez réessayer.');
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      alert(`Erreur lors de l'initialisation du paiement: ${errorMessage}`);
     } finally {
       setIsProcessingPayment(false);
     }

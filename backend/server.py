@@ -650,10 +650,20 @@ async def get_market_stats():
 async def create_checkout_session(payment_request: PaymentRequest):
     """Créer une session de paiement Stripe"""
     try:
+        logger.info(f"Creating checkout session for product: {payment_request.product_id}")
+        
+        # Vérifier que Stripe est configuré
+        if not stripe.api_key:
+            logger.error("Stripe API key not configured")
+            raise HTTPException(status_code=500, detail="Configuration Stripe manquante")
+        
         # Récupérer le produit
         product = await db.products.find_one({"id": payment_request.product_id})
         if not product:
+            logger.error(f"Product not found: {payment_request.product_id}")
             raise HTTPException(status_code=404, detail="Produit non trouvé")
+        
+        logger.info(f"Found product: {product['title']} - €{product['price']}")
         
         # Créer la session Stripe Checkout
         checkout_session = stripe.checkout.Session.create(
@@ -682,11 +692,14 @@ async def create_checkout_session(payment_request: PaymentRequest):
             }
         )
         
+        logger.info(f"Checkout session created: {checkout_session.id}")
         return {"checkout_session_id": checkout_session.id, "url": checkout_session.url}
         
     except stripe.error.StripeError as e:
+        logger.error(f"Stripe error: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Erreur Stripe: {str(e)}")
     except Exception as e:
+        logger.error(f"Server error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erreur serveur: {str(e)}")
 
 @api_router.post("/webhook/stripe")
