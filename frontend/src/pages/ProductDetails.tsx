@@ -100,10 +100,10 @@ const ProductDetails = () => {
     setLoading(true);
     try {
       const [productRes, reviewsRes, reviewStatsRes, priceHistoryRes] = await Promise.all([
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/reviews`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/reviews/stats`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/price-history`)
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/reviews`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/reviews/stats`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/price-history`)
       ]);
 
       if (productRes.ok) {
