@@ -14,7 +14,10 @@ export const createCheckoutSession = async (paymentData: PaymentData) => {
     console.log('Creating checkout session with data:', paymentData);
     console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
     
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-checkout-session`, {
+    const url = `${import.meta.env.VITE_BACKEND_URL}/api/create-checkout-session`;
+    console.log('Full request URL:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,6 +26,7 @@ export const createCheckoutSession = async (paymentData: PaymentData) => {
     });
 
     console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -31,10 +35,13 @@ export const createCheckoutSession = async (paymentData: PaymentData) => {
     }
 
     const session = await response.json();
-    console.log('Session created:', session);
+    console.log('Session created successfully:', session);
     return session;
   } catch (error) {
-    console.error('Erreur Stripe:', error);
+    console.error('Erreur lors de la création de session Stripe:', error);
+    if (error instanceof TypeError) {
+      console.error('Erreur de réseau - vérifiez que le backend est en cours d\'exécution');
+    }
     throw error;
   }
 };

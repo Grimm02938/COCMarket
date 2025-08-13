@@ -91,11 +91,13 @@ const ProductDetails = () => {
       console.log('Payment data:', paymentData);
       const session = await createCheckoutSession(paymentData);
       
+      console.log('Session response:', session);
+      
       if (!session || !session.checkout_session_id) {
         throw new Error('Session de paiement invalide reçue du serveur');
       }
       
-      console.log('Redirecting to Stripe checkout...');
+      console.log('Redirecting to Stripe checkout with session ID:', session.checkout_session_id);
       await redirectToCheckout(session.checkout_session_id);
     } catch (error) {
       console.error('Erreur lors du paiement:', error);
