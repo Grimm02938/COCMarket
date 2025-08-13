@@ -1,0 +1,151 @@
+ChatGPT a dit :
+Parfait — j’ai vérifié le fichier frontend/src/services/stripeService.ts dans ton zip : il contient juste un placeholder ... (le code qui fait le fetch et qui récupère la session de paiement manque). C’est très probablement pour ça que l’intégration Stripe ne fonctionne — le frontend n’envoie pas la requête au backend ou ne redirige pas vers Stripe.
+
+Je te donne :
+
+un fichier stripeService.ts complet et fonctionnel à coller (remplace l’ancien),
+
+les vérifications à faire (URL backend, build / dev server, logs navigateur),
+
+un rappel sécurité important (tes clés Stripe dans le dépôt).
+
+1) Remplace frontend/src/services/stripeService.ts par ceci
+Copie-colle tout le contenu ci-dessous dans ce fichier :
+
+ts
+Copier
+Modifier
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+
+export interface PaymentData {
+  product_id: string;
+  success_url: string;
+  cancel_url: string;
+}
+
+/**
+ * Crée une session Checkout côté backend
+ * Retourne l'ID de session Stripe (ou l'objet retourné par le backend)
+ */
+export const createCheckoutSession = async (paymentData: PaymentData) => {
+  try {
+    console.log('Creating checkout session with data:', paymentData);
+    console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(paymentData),
+    });
+
+    console.log('Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error:', errorText);
+      throw new Error(`Erreur serveur: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('Session created (backend response):', data);
+
+    // Le backend (d'après ton server.py) renvoie { checkout_session_id, url }
+    const sessionId =
+      data.checkout_session_id || data.checkoutSessionId || data.id || (data.session && data.session.id);
+
+    if (!sessionId) {
+      console.error('Aucun sessionId retourné par le backend', data);
+      throw new Error('Impossible de récupérer l’ID de session depuis le backend.');
+    }
+
+    return sessionId;
+  } catch (error) {
+    console.error('Erreur createCheckoutSession:', error);
+    throw error;
+  }
+};
+
+/**
+ * Redirige vers Stripe Checkout
+ */
+export const redirectToCheckout = async (sessionId: string) => {
+  console.log('Redirecting to checkout with session ID:', sessionId);
+  console.log('Stripe publishable key:', import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ? 'Present' : 'Missing');
+
+  const stripe = await stripePromise;
+
+  if (!stripe) {
+    console.error('Stripe failed to load');
+    throw new Error("Stripe n'a pas pu être chargé. Vérifiez votre clé publique Stripe.");
+  }
+
+  console.log('Stripe loaded successfully, redirecting...');
+  const { error } = await stripe.redirectToCheckout({
+    sessionId: sessionId,
+  });
+
+  if (error) {
+    console.error('Erreur de redirection Stripe:', error);
+    throw error;
+  }
+};
+2) Vérifications / étapes pour tester (ordre recommandé)
+URL backend
+
+Dans frontend/.env ton VITE_BACKEND_URL est http://localhost:8000.
+
+Si tu accèdes à l’application dans le navigateur (depuis Replit ou une URL publique), localhost ne fonctionnera pas (le navigateur cherchera sur la machine locale du visiteur).
+
+Remplace VITE_BACKEND_URL par l’URL publique de ton backend (ex : https://ton-projet.repl.co ou l’URL que Replit te donne).
+
+Après modification, redémarre le serveur front (vite/dev server) pour que Vite recharge les variables d’environnement.
+
+Tester la requête create-checkout-session
+
+Ouvre la console de ton navigateur (F12) → onglet Network.
+
+Lance un paiement depuis l’UI : regarde la requête POST sur /api/create-checkout-session.
+
+Vérifie le code HTTP et la réponse JSON (tu dois recevoir checkout_session_id ou id).
+
+Logs côté backend
+
+Regarde les logs du backend (console Replit) : le server.py logge la création de session (Checkout session created: <id>). Si tu vois une erreur Stripe API key not configured, ton backend n’a pas la clé.
+
+Clé publique (frontend)
+
+Assure-toi que VITE_STRIPE_PUBLISHABLE_KEY est bien définie dans frontend/.env et qu’elle commence par pk_test_... (ou pk_live_... si prod).
+
+Dans la console du navigateur, le stripeService.ts affiche Stripe publishable key: Present ou Missing.
+
+CORS
+
+Ton server.py semble déjà avoir allow_origins=["*"], donc c’est ok. Si tu as une configuration stricte, autorise le domaine front.
+
+Webhook (optionnel / prod)
+
+Si tu utilises webhooks, vérifie que STRIPE_WEBHOOK_SECRET est correct dans le backend et que l’endpoint /api/webhook/stripe est exposé publiquement.
+
+3) Sécurité — très important
+Ton archive contient des clés Stripe (secret & webhook) dans backend/.env. Il faut absolument régénérer la clé secret sur Stripe et supprimer la clé de ton repo (ou retirer le fichier .env du repo).
+
+Procédure rapide :
+
+Dans le dashboard Stripe → Developers → API keys → rotate/regenerate la clé secrète.
+
+Supprime backend/.env du repo :
+
+bash
+Copier
+Modifier
+git rm --cached backend/.env
+echo ".env" >> backend/.gitignore
+git add backend/.gitignore
+git commit -m "Remove backend .env and ignore it"
+git push origin main
+Pour enlever la clé des anciens commits (historique), on peut utiliser git filter-repo ou BFG. Dis-moi si tu veux que je fournisse la séquence exacte.
+
