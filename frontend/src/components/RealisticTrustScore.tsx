@@ -111,17 +111,7 @@ export const RealisticTrustScore: React.FC<TrustScoreProps> = ({
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10">
         <div className={`${classes.container}`}>
-          {/* Header avec badge Trustpilot-style */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-5 h-5 text-green-500" />
-              <span className="text-white font-semibold">TrustScore</span>
-            </div>
-            <div className="flex items-center space-x-1 bg-green-500/20 px-2 py-1 rounded-full">
-              <Check className="w-3 h-3 text-green-400" />
-              <span className="text-green-400 text-xs font-medium">Vérifié</span>
-            </div>
-          </div>
+          {/* Header Trustpilot supprimé */}
 
           {/* Score principal et étoiles */}
           <div className="flex items-center space-x-4 mb-4">
