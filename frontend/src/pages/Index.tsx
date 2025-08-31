@@ -15,10 +15,7 @@ const Index = () => {
       {/* Header avec navigation amélioré */}
       <Header />
 
-      {/* TrustScore réaliste en haut de page */}
-      <section className="py-8 px-4">
-        <RealisticTrustScore size="large" />
-      </section>
+  {/* TrustScore supprimé */}
 
       {/* Section principale avec espacement optimisé */}
       <main className="space-y-12 pb-12">

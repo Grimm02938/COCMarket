@@ -1,1 +1,4 @@
-// Ce composant a été supprimé suite à la suppression de Trustpilot du site.
+// Composant retiré — stub pour garder les imports sûrs.
+export default function ModernTrustScore() {
+	return null;
+}

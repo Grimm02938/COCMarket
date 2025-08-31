@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import FuturisticHeader from '@/components/FuturisticHeader';
-import { RealisticTrustScore } from '@/components/RealisticTrustScore';
 import { createCheckoutSession, redirectToCheckout } from '@/services/stripeService';
 
 interface GameProduct {

@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import FuturisticHeader from '@/components/FuturisticHeader';
-// ...existing code...
 
 const UserProfile = () => {
   const { user, updateProfile, logout } = useAuth();
