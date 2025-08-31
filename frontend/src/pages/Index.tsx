@@ -1,7 +1,5 @@
 
 import { StatsCarousel } from "@/components/StatsCarousel";
-import { CertifiedReviews } from "@/components/CertifiedReviews";
-import { ModernTrustScore } from "@/components/ModernTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
 import { AdvancedVillageListings } from "@/components/AdvancedVillageListings";
@@ -21,14 +19,7 @@ const Index = () => {
 
       {/* Section principale */}
       <main className="space-y-16 pb-16">
-        {/* Avis clients certifiés + Trust Score ensemble */}
-        <section className="scroll-reveal">
-          <CertifiedReviews />
-          {/* Trust Score directement après les avis */}
-          <div className="mt-6 flex justify-center">
-            <ModernTrustScore />
-          </div>
-        </section>
+  {/* Section avis clients retirée */}
 
         {/* Annonces de villages - NOUVEAU composant */}
         <section className="scroll-reveal">
