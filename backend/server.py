@@ -13,10 +13,34 @@ from enum import Enum
 import hashlib
 import secrets
 import stripe
+import aiohttp
+import firebase_admin
+from firebase_admin import credentials, firestore
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from authlib.integrations.starlette_client import OAuth
+from authlib.jose import jwt
 
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Firebase initialization
+cred = credentials.Certificate({
+    "type": "service_account",
+    "project_id": os.environ.get('FIREBASE_PROJECT_ID'),
+    "private_key_id": os.environ.get('FIREBASE_PRIVATE_KEY_ID'),
+    "private_key": os.environ.get('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
+    "client_email": os.environ.get('FIREBASE_CLIENT_EMAIL'),
+    "client_id": os.environ.get('FIREBASE_CLIENT_ID'),
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": os.environ.get('FIREBASE_CLIENT_CERT_URL')
+})
+
+firebase_admin.initialize_app(cred)
+db_firebase = firestore.client()
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -24,7 +48,17 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Configuration Stripe
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+stripe.api_key = "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"
+STRIPE_PUBLISHABLE_KEY = "pk_live_51RqyOwFsrP029t76six64eFyLCFMGmib98fSp9KnzT32IPv3FMH9FPmndf1OSTNcLPM8mVL4g1m4SsOvJBCTlUCL00eVIHsvge"
+
+# Configuration OAuth2 pour Google et Apple
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+APPLE_CLIENT_ID = os.environ.get('APPLE_CLIENT_ID')
+APPLE_TEAM_ID = os.environ.get('APPLE_TEAM_ID')
+APPLE_KEY_ID = os.environ.get('APPLE_KEY_ID')
+APPLE_PRIVATE_KEY = os.environ.get('APPLE_PRIVATE_KEY')
+
 # Database collections
 collections = ["products", "users", "reviews", "price_history", "market_stats", "sessions"]
 
@@ -236,6 +270,11 @@ class MarketStats(BaseModel):
     average_price: float
     trending_games: List[str]
     featured_products: List[GameProduct]
+
+# Models pour l'authentification sociale
+class SocialAuthRequest(BaseModel):
+    token: str
+    provider: str  # "google" ou "apple"
 
 # Legacy models for compatibility
 class StatusCheck(BaseModel):
@@ -501,6 +540,93 @@ async def get_current_user_profile(token: str):
     user_dict = user.dict()
     user_dict["password_hash"] = "***"  # Hidden
     return User(**user_dict)
+
+@api_router.post("/auth/social", response_model=AuthResponse)
+async def social_auth(auth_request: SocialAuthRequest):
+    """Authentification via Google ou Apple"""
+    logger.info(f"🔑 Tentative de connexion sociale via {auth_request.provider}")
+    
+    try:
+        if auth_request.provider == "google":
+            # Vérifier le token Google
+            userinfo_url = f"https://www.googleapis.com/oauth2/v3/userinfo"
+            headers = {"Authorization": f"Bearer {auth_request.token}"}
+            async with aiohttp.ClientSession() as session:
+                async with session.get(userinfo_url, headers=headers) as response:
+                    if response.status != 200:
+                        logger.error(f"❌ Erreur validation token Google: {response.status}")
+                        raise HTTPException(status_code=401, detail="Invalid Google token")
+                    google_user = await response.json()
+            
+            email = google_user["email"]
+            name = google_user["name"]
+            
+        elif auth_request.provider == "apple":
+            # Vérifier le token Apple
+            client = Asynchronous.Client(
+                client_id=APPLE_CLIENT_ID,
+                team_id=APPLE_TEAM_ID,
+                key_id=APPLE_KEY_ID,
+                private_key=APPLE_PRIVATE_KEY,
+            )
+            
+            # Valider et décoder le token
+            apple_user = await client.verify_id_token(auth_request.token)
+            if not apple_user:
+                logger.error("❌ Token Apple invalide")
+                raise HTTPException(status_code=401, detail="Invalid Apple token")
+                
+            email = apple_user["email"]
+            name = apple_user.get("name", email.split("@")[0])  # Utiliser email comme fallback
+            
+        else:
+            logger.error(f"❌ Provider non supporté: {auth_request.provider}")
+            raise HTTPException(status_code=400, detail="Unsupported provider")
+        
+        # Chercher l'utilisateur existant
+        user = await db.users.find_one({"email": email})
+        
+        # Créer un nouvel utilisateur si nécessaire
+        if not user:
+            logger.info(f"👤 Création d'un nouvel utilisateur social: {name}")
+            user = User(
+                username=name.lower().replace(" ", "_"),
+                email=email,
+                password_hash="",  # Pas de mot de passe pour connexion sociale
+                location=LocationRegion.FR,  # Default
+                display_name=name,
+                is_verified=True  # Vérifié car email validé par provider
+            )
+            try:
+                result = await db.users.insert_one(user.dict())
+                logger.info(f"✅ Nouvel utilisateur social créé: {result.inserted_id}")
+            except Exception as e:
+                logger.error(f"❌ Erreur création utilisateur social: {e}")
+                raise HTTPException(status_code=500, detail="Database error")
+        
+        # Créer une session
+        token = generate_session_token()
+        expires_at = datetime.utcnow() + timedelta(days=30)
+        
+        session = UserSession(
+            user_id=user["id"],
+            token=token,
+            expires_at=expires_at
+        )
+        
+        await db.sessions.insert_one(session.dict())
+        logger.info(f"✅ Session créée pour {auth_request.provider}: {user['username']}")
+        
+        # Retourner la réponse
+        return AuthResponse(
+            user=User(**user, password_hash="***"),
+            token=token,
+            expires_at=expires_at
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur authentification sociale: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Authentication error: {str(e)}")
 
 @api_router.put("/auth/profile", response_model=User)
 async def update_user_profile(token: str, user_update: UserUpdate):
