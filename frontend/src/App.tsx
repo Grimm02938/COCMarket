@@ -8,6 +8,7 @@ import VillageDetailsPage from "./pages/VillageDetailsPage";
 import SellerProfilePage from "./pages/SellerProfilePage";
 import UserProfile from "./pages/UserProfile";
 import PaymentSuccess from './pages/PaymentSuccess';
+import DashboardPage from './pages/DashboardPage';
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/village/:id" element={<VillageDetailsPage />} />
           <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

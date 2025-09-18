@@ -3,6 +3,7 @@ import { X, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [error, setError] = useState('');
 
   const { register, login } = useAuth();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -87,6 +89,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       console.log('✅ Inscription réussie');
       onSuccess?.();
       onClose();
+      navigate('/dashboard');
     } catch (error) {
       console.error('❌ Erreur lors de l\'inscription:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de l\'inscription');
@@ -128,7 +131,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-16 pb-8"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 mt-20"
       onClick={onClose}
     >
       {/* Backdrop */}
@@ -136,7 +139,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
       {/* Modal */}
       <div 
-        className="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-lg rounded-3xl border border-gray-700/50 shadow-2xl flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-lg rounded-3xl border border-gray-700/50 shadow-2xl flex flex-col max-h-[80vh] animate-in fade-in-0 slide-in-from-top-5"
         onClick={(e) => e.stopPropagation()}
       >
         
