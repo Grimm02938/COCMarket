@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
+import asyncio
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import uuid
@@ -59,7 +60,12 @@ except Exception as e:
 # MongoDB connection (with safe defaults for local dev)
 mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 db_name = os.environ.get('DB_NAME', 'cocmarket')
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=2000,
+    connectTimeoutMS=2000,
+    socketTimeoutMS=2000,
+)
 db = client[db_name]
 
 # Configuration Stripe (use env, fall back to test keys or blank)
@@ -110,8 +116,8 @@ async def health():
     stripe_ok = bool(stripe.api_key)
     mongo_ok = True
     try:
-        # Simple ping; works on modern Mongo servers
-        await db.command('ping')
+        # Bound ping to avoid long hangs if Mongo is unreachable
+        await asyncio.wait_for(db.command('ping'), timeout=2.0)
     except Exception:
         mongo_ok = False
     return {
