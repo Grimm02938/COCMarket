@@ -39,14 +39,15 @@ const CocMarketHomepage = () => {
     const fetchData = async () => {
       try {
         // Initialize sample data first
-        await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/init-sample-data`, {
+  const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  await fetch(`${baseUrl}/api/init-sample-data`, {
           method: 'POST'
         });
 
         // Fetch market stats and featured products
         const [statsRes, productsRes] = await Promise.all([
-          fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/market-stats`),
-          fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products?featured_only=true&limit=4`)
+          fetch(`${baseUrl}/api/market-stats`),
+          fetch(`${baseUrl}/api/products?featured_only=true&limit=4`)
         ]);
 
         const stats = await statsRes.json();

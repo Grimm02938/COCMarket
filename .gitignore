@@ -1,3 +1,27 @@
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Python / backend
+__pycache__/
+*.pyc
+
+# Env files (do not commit secrets)
+.env
+*.env
+frontend/.env
+backend/.env
+
+# Logs
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Environment variables
 .env
