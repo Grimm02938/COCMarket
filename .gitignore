@@ -1,6 +1,12 @@
 
 # Environment variables
 .env
+backend/.env
+frontend/.env.local
+
+# Firebase service account keys
+firebase-service-account.json
+backend/firebase-service-account.json
 
 # Python virtual environment
 venv/
