@@ -106,6 +106,21 @@ def generate_session_token() -> str:
 # Create the main app without a prefix
 app = FastAPI(title="CocMarket Gaming Marketplace API")
 
+# Configuration CORS
+origins = [
+    "https://cocmarket-0.web.app",  # URL de production du frontend
+    "http://localhost:5173",       # URL de développement Vite (React)
+    "http://localhost:3000",       # URL de développement courante
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 

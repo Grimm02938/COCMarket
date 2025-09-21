@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '@/lib/firebase';
 
 interface User {
   id: string;
@@ -22,6 +24,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -154,6 +157,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('auth_token', authData.token);
   };
 
+  const signInWithGoogle = async () => {
+    console.log('🚀 AuthContext: Tentative de connexion avec Google...');
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      console.log('✅ Connexion Google réussie, utilisateur:', user.displayName);
+
+      // Obtenir le token d'ID Firebase
+      const idToken = await user.getIdToken();
+
+      // Envoyer le token au backend pour l'authentification sociale
+      const response = await fetch(`${BACKEND_URL}/api/auth/social`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: idToken, provider: 'google' }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('❌ Erreur d\'authentification sociale backend:', error);
+        throw new Error(error.detail || 'Social authentication failed');
+      }
+
+      const authData = await response.json();
+      console.log('✅ Authentification backend réussie:', { 
+        hasToken: !!authData.token, 
+        hasUser: !!authData.user,
+        username: authData.user?.username 
+      });
+
+      setToken(authData.token);
+      setUser(authData.user);
+      localStorage.setItem('auth_token', authData.token);
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la connexion avec Google:', error);
+      // Gérer les erreurs spécifiques de Firebase (popup fermée, etc.)
+      throw new Error('La connexion avec Google a échoué. Veuillez réessayer.');
+    }
+  };
+
   const logout = async () => {
     try {
       if (token) {
@@ -200,6 +246,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     login,
     register,
+    signInWithGoogle,
     logout,
     updateProfile,
   };
