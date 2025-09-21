@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { signInWithGoogle } from '../lib/firebase'; // Import the new function
 
 interface User {
   id: string;
@@ -22,6 +23,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>; // Add the new function
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -47,7 +49,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
-  // Load token from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
@@ -65,7 +66,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const userData = await response.json();
         setUser(userData);
       } else {
-        // Token is invalid, clear it
         localStorage.removeItem('auth_token');
         setToken(null);
         setUser(null);
@@ -81,87 +81,75 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string) => {
-    console.log('🔐 AuthContext: Tentative de connexion pour:', email);
-    console.log('🌐 Backend URL:', BACKEND_URL);
-    
     const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    console.log('📡 Réponse du serveur - Status:', response.status);
-
     if (!response.ok) {
       const error = await response.json();
-      console.error('❌ Erreur de connexion:', error);
       throw new Error(error.detail || 'Login failed');
     }
 
     const authData = await response.json();
-    console.log('✅ Données d\'authentification reçues:', { 
-      hasToken: !!authData.token, 
-      hasUser: !!authData.user,
-      username: authData.user?.username 
-    });
-    
     setToken(authData.token);
     setUser(authData.user);
     localStorage.setItem('auth_token', authData.token);
   };
 
   const register = async (username: string, email: string, password: string) => {
-    console.log('📝 AuthContext: Tentative d\'inscription pour:', { username, email });
-    console.log('🌐 Backend URL:', BACKEND_URL);
-    
-    const requestData = {
-      username,
-      email,
-      password,
-      location: 'fr',
-    };
-    
-    console.log('📤 Données envoyées:', { ...requestData, password: '[MASQUÉ]' });
-    
     const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, location: 'fr' }),
     });
-
-    console.log('📡 Réponse du serveur - Status:', response.status);
 
     if (!response.ok) {
       const error = await response.json();
-      console.error('❌ Erreur d\'inscription:', error);
       throw new Error(error.detail || 'Registration failed');
     }
 
     const authData = await response.json();
-    console.log('✅ Inscription réussie, données reçues:', { 
-      hasToken: !!authData.token, 
-      hasUser: !!authData.user,
-      username: authData.user?.username,
-      userId: authData.user?.id 
-    });
-    
     setToken(authData.token);
     setUser(authData.user);
     localStorage.setItem('auth_token', authData.token);
   };
+
+  // --- New Function for Google Login ---
+  const loginWithGoogle = async () => {
+    try {
+      const firebaseUserCredential = await signInWithGoogle();
+      const firebaseToken = await firebaseUserCredential.user.getIdToken();
+
+      const response = await fetch(`${BACKEND_URL}/api/auth/social-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: firebaseToken }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Google login failed');
+      }
+
+      const authData = await response.json();
+      setToken(authData.token);
+      setUser(authData.user);
+      localStorage.setItem('auth_token', authData.token);
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      // Handle errors here, e.g., show a notification to the user
+    }
+  };
+  // --- End of New Function ---
 
   const logout = async () => {
     try {
       if (token) {
         await fetch(`${BACKEND_URL}/api/auth/logout`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),
         });
       }
@@ -176,20 +164,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = async (data: Partial<User>) => {
     if (!token) throw new Error('Not authenticated');
-
     const response = await fetch(`${BACKEND_URL}/api/auth/profile?token=${token}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Profile update failed');
     }
-
     const updatedUser = await response.json();
     setUser(updatedUser);
   };
@@ -200,6 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     login,
     register,
+    loginWithGoogle, // Expose the new function
     logout,
     updateProfile,
   };
