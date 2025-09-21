@@ -273,6 +273,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
               </div>
 
@@ -287,6 +288,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
               </div>
 
@@ -335,6 +337,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                 />
               </div>
 
