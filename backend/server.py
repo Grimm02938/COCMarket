@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, Header, Request
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -53,10 +53,16 @@ STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
 logger.info("Stripe configured.")
 
 # --- MongoDB Connection ---
-mongo_url = os.environ.get('MONGO_URL')
-print(f"--- DEBUG: Trying to use MONGO_URL: {mongo_url} ---") # DEBUG LINE
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'cocmarket')]
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+print(f"--- DEBUG: Trying to use MONGO_URL: {mongo_url} ---")  # DEBUG LINE
+
+try:
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ.get('DB_NAME', 'cocmarket')]
+    logger.info("MongoDB connection configured successfully")
+except Exception as e:
+    logger.error(f"MongoDB connection error: {e}")
+    logger.warning("Continuing with server setup, database operations will fail until connection is fixed")
 
 # --- Utility functions for authentication ---
 def hash_password(password: str) -> str:
@@ -69,7 +75,7 @@ def verify_password(password: str, hashed: str) -> bool:
         salt, pwd_hash = hashed.split(':')
         check_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
         return pwd_hash == check_hash.hex()
-    except:
+    except ValueError:
         return False
 
 def generate_session_token() -> str:
@@ -200,6 +206,29 @@ class StripeCheckoutRequest(BaseModel):
     success_url: str
     cancel_url: str
 
+# --- Authentication Dependency ---
+async def get_current_user(token: str = Header(None, alias="Authorization")):
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication token required")
+    
+    if token.startswith("Bearer "):
+        token = token[7:]
+    
+    session = await db.sessions.find_one({"token": token, "is_active": True})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    if session["expires_at"] < datetime.utcnow():
+        await db.sessions.update_one({"_id": session["_id"]}, {"$set": {"is_active": False}})
+        raise HTTPException(status_code=401, detail="Token expired")
+    
+    user = await db.users.find_one({"id": session["user_id"]})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    user.pop("password_hash", None)
+    return User(**user)
+
 @api_router.post("/auth/register", response_model=AuthResponse)
 async def register_user(user_data: UserCreate):
     logger.info(f"📝 New user registration attempt for email: {user_data.email}")
@@ -320,6 +349,380 @@ async def social_login(social_data: SocialLogin):
     except Exception as e:
         logger.error(f"An error occurred during social login: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred during social login.")
+
+@api_router.get("/auth/me", response_model=User)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current authenticated user information"""
+    return current_user
+
+@api_router.post("/auth/logout")
+async def logout_user(token: str = Header(None, alias="Authorization")):
+    """Logout user by invalidating the session token"""
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication token required")
+    
+    if token.startswith("Bearer "):
+        token = token[7:]
+    
+    # Invalidate the session
+    result = await db.sessions.update_one(
+        {"token": token, "is_active": True}, 
+        {"$set": {"is_active": False}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    return {"message": "Successfully logged out"}
+
+# --- Products Endpoints ---
+@api_router.get("/products")
+async def get_products(
+    category: Optional[ProductCategory] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    location: Optional[LocationRegion] = None,
+    search: Optional[str] = None,
+    page: int = 1,
+    limit: int = 20
+):
+    """Get products with filtering options"""
+    skip = (page - 1) * limit
+    filter_query = {"is_available": True}
+    
+    if category:
+        filter_query["category"] = category
+    if min_price is not None:
+        filter_query["price"] = {"$gte": min_price}
+    if max_price is not None:
+        if "price" in filter_query:
+            filter_query["price"]["$lte"] = max_price
+        else:
+            filter_query["price"] = {"$lte": max_price}
+    if location:
+        filter_query["location"] = location
+    if search:
+        filter_query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}},
+            {"game_name": {"$regex": search, "$options": "i"}}
+        ]
+    
+    products = await db.products.find(filter_query).skip(skip).limit(limit).to_list(length=limit)
+    total = await db.products.count_documents(filter_query)
+    
+    return {
+        "products": products,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "has_more": skip + limit < total
+    }
+
+@api_router.get("/products/{product_id}")
+async def get_product(product_id: str):
+    """Get a specific product by ID"""
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Increment view count
+    await db.products.update_one(
+        {"id": product_id}, 
+        {"$inc": {"view_count": 1}}
+    )
+    
+    return product
+
+@api_router.post("/products", response_model=GameProduct)
+async def create_product(
+    product_data: GameProductCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new product listing"""
+    # Ensure the user is creating their own listing
+    if product_data.seller_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Cannot create listing for another user")
+    
+    product = GameProduct(**product_data.dict())
+    await db.products.insert_one(product.dict())
+    
+    return product
+
+@api_router.put("/products/{product_id}")
+async def update_product(
+    product_id: str,
+    product_update: GameProductUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a product listing"""
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    if product["seller_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Cannot update another user's listing")
+    
+    update_data = {k: v for k, v in product_update.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.products.update_one(
+        {"id": product_id}, 
+        {"$set": update_data}
+    )
+    
+    updated_product = await db.products.find_one({"id": product_id})
+    return updated_product
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(
+    product_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a product listing"""
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    if product["seller_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Cannot delete another user's listing")
+    
+    await db.products.delete_one({"id": product_id})
+    return {"message": "Product deleted successfully"}
+
+# --- Stripe Payment Endpoints ---
+@api_router.post("/stripe/create-checkout-session")
+async def create_checkout_session(
+    checkout_request: StripeCheckoutRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a Stripe checkout session for a product"""
+    # Get the product
+    product = await db.products.find_one({"id": checkout_request.product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    if not product["is_available"]:
+        raise HTTPException(status_code=400, detail="Product is no longer available")
+    
+    try:
+        # Create Stripe checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {
+                        'name': product['title'],
+                        'description': product['description'][:500],  # Stripe limit
+                    },
+                    'unit_amount': int(product['price'] * 100),  # Convert to cents
+                },
+                'quantity': checkout_request.quantity,
+            }],
+            mode='payment',
+            success_url=checkout_request.success_url + f"?session_id={{CHECKOUT_SESSION_ID}}&product_id={product['id']}",
+            cancel_url=checkout_request.cancel_url,
+            metadata={
+                'product_id': product['id'],
+                'buyer_id': current_user.id,
+                'seller_id': product['seller_id']
+            }
+        )
+        
+        return {"checkout_url": session.url, "session_id": session.id}
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error: {e}")
+        raise HTTPException(status_code=400, detail=f"Payment error: {str(e)}")
+
+@api_router.post("/stripe/webhook")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhooks"""
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        
+        # Handle successful payment
+        await handle_successful_payment(session)
+    
+    return {"status": "success"}
+
+async def handle_successful_payment(session):
+    """Handle successful payment processing"""
+    product_id = session['metadata']['product_id']
+    buyer_id = session['metadata']['buyer_id']
+    seller_id = session['metadata']['seller_id']
+    
+    # Mark product as sold
+    await db.products.update_one(
+        {"id": product_id},
+        {"$set": {"is_available": False}}
+    )
+    
+    # Update user stats
+    await db.users.update_one(
+        {"id": seller_id},
+        {"$inc": {"total_sales": 1}}
+    )
+    
+    await db.users.update_one(
+        {"id": buyer_id},
+        {"$inc": {"total_purchases": 1}}
+    )
+    
+    # You can add email notification logic here
+    logger.info(f"Payment completed for product {product_id}, buyer: {buyer_id}, seller: {seller_id}")
+
+# --- Categories and Games Endpoints ---
+@api_router.get("/categories")
+async def get_categories():
+    """Get all available product categories"""
+    return [{"value": cat.value, "label": cat.value.title()} for cat in ProductCategory]
+
+@api_router.get("/games")
+async def get_popular_games():
+    """Get popular games based on product listings"""
+    pipeline = [
+        {"$group": {"_id": "$game_name", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20}
+    ]
+    
+    result = await db.products.aggregate(pipeline).to_list(length=20)
+    return [{"name": item["_id"], "listings_count": item["count"]} for item in result]
+
+# --- Sample Data Endpoint (for development/testing) ---
+@api_router.post("/init-sample-data")
+async def initialize_sample_data():
+    """Initialize sample data for development/testing"""
+    try:
+        # Check if data already exists
+        existing_products = await db.products.count_documents({})
+        if existing_products > 0:
+            return {"message": "Sample data already exists", "products_count": existing_products}
+        
+        # Sample products
+        sample_products = [
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Compte Fortnite niveau 150 avec skin rare",
+                "description": "Compte Fortnite avec de nombreux skins rares, niveau 150, plus de 200 victoires royales",
+                "category": ProductCategory.ACCOUNTS,
+                "game_name": "Fortnite",
+                "price": 45.99,
+                "original_price": 60.00,
+                "condition": ProductCondition.EXCELLENT,
+                "location": LocationRegion.FR,
+                "seller_id": "sample_seller_1",
+                "images": [],
+                "is_featured": True,
+                "is_available": True,
+                "level": 150,
+                "stats": {"wins": 200, "kills": 1500},
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "view_count": 0
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "V-Bucks Fortnite - 2800 V-Bucks",
+                "description": "2800 V-Bucks pour Fortnite, livraison immédiate",
+                "category": ProductCategory.CURRENCY,
+                "game_name": "Fortnite",
+                "price": 19.99,
+                "condition": ProductCondition.NEW,
+                "location": LocationRegion.FR,
+                "seller_id": "sample_seller_2",
+                "images": [],
+                "is_featured": False,
+                "is_available": True,
+                "stats": {"amount": 2800},
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "view_count": 0
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Skin CS:GO AK-47 Redline",
+                "description": "Skin AK-47 Redline Field-Tested, très bon état",
+                "category": ProductCategory.SKINS,
+                "game_name": "CS:GO",
+                "price": 25.50,
+                "condition": ProductCondition.GOOD,
+                "location": LocationRegion.EU,
+                "seller_id": "sample_seller_1",
+                "images": [],
+                "is_featured": False,
+                "is_available": True,
+                "stats": {"wear": "Field-Tested", "float": 0.15},
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow(),
+                "view_count": 0
+            }
+        ]
+        
+        # Sample users
+        sample_users = [
+            {
+                "id": "sample_seller_1",
+                "username": "GamerPro123",
+                "email": "gamer@example.com",
+                "location": LocationRegion.FR,
+                "trust_score": 4.8,
+                "total_sales": 15,
+                "total_purchases": 3,
+                "member_since": datetime.utcnow() - timedelta(days=90),
+                "is_verified": True,
+                "badges": ["Vendeur fiable", "Réponse rapide"],
+                "display_name": "GamerPro123",
+                "bio": "Vendeur de comptes gaming depuis 2 ans",
+                "is_online": True,
+                "auth_provider": "email"
+            },
+            {
+                "id": "sample_seller_2",
+                "username": "SkinDealer",
+                "email": "dealer@example.com",
+                "location": LocationRegion.FR,
+                "trust_score": 4.5,
+                "total_sales": 8,
+                "total_purchases": 12,
+                "member_since": datetime.utcnow() - timedelta(days=45),
+                "is_verified": True,
+                "badges": ["Nouveau vendeur"],
+                "display_name": "Skin Dealer",
+                "bio": "Spécialisé dans les skins CS:GO",
+                "is_online": False,
+                "last_seen": datetime.utcnow() - timedelta(hours=2),
+                "auth_provider": "email"
+            }
+        ]
+        
+        # Insert sample data
+        await db.products.insert_many(sample_products)
+        await db.users.insert_many(sample_users)
+        
+        return {
+            "message": "Sample data initialized successfully",
+            "products_created": len(sample_products),
+            "users_created": len(sample_users)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error initializing sample data: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to initialize sample data: {str(e)}")
 
 app.include_router(api_router)
 app.add_middleware(
