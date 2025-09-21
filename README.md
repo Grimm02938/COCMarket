@@ -68,16 +68,24 @@ Le projet utilise Firebase Hosting avec déploiement automatique via GitHub Acti
 
 ## 🔐 Variables d'environnement
 
+**⚠️ Configuration requise :** Voir le guide détaillé dans [CONFIGURATION.md](./CONFIGURATION.md)
+
 ### Frontend (.env)
 ```
-REACT_APP_BACKEND_URL=votre_url_backend
+VITE_BACKEND_URL=http://localhost:8001
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle_publique_stripe
 ```
 
 ### Backend (.env)
 ```
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=cocmarket_db
+STRIPE_SECRET_KEY=sk_test_votre_cle_secrete_stripe
+STRIPE_PUBLISHABLE_KEY=pk_test_votre_cle_publique_stripe
+STRIPE_WEBHOOK_SECRET=whsec_votre_secret_webhook
 ```
+
+**📖 Guide complet :** [CONFIGURATION.md](./CONFIGURATION.md)
 
 ## 📝 Scripts disponibles
 

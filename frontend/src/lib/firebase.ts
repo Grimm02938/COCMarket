@@ -3,14 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 // Your web app's Firebase configuration
-// IMPORTANT: Replace with your actual Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBHCeOGX-2D86NLYdaiSKc4h1VMtFuqZiQ",
-  authDomain: "VOTRE_AUTH_DOMAIN",
-  projectId: "VOTRE_PROJECT_ID",
-  storageBucket: "VOTRE_STORAGE_BUCKET",
-  messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-  appId: "VOTRE_APP_ID"
+  authDomain: "cocmarket-0.firebaseapp.com",
+  projectId: "cocmarket-0",
+  storageBucket: "cocmarket-0.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 // Initialize Firebase
