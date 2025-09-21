@@ -1,7 +1,7 @@
 
 import { StatsCarousel } from "@/components/StatsCarousel";
 import { CertifiedReviews } from "@/components/CertifiedReviews";
-import { RealisticTrustScore } from "@/components/RealisticTrustScore";
+// import { RealisticTrustScore } from "@/components/RealisticTrustScore";
 import { ModernScenarios } from "@/components/ModernScenarios";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -15,10 +15,7 @@ const Index = () => {
       {/* Header avec navigation amélioré */}
       <Header />
 
-      {/* TrustScore réaliste en haut de page */}
-      <section className="py-8 px-4">
-        <RealisticTrustScore size="large" />
-      </section>
+  {/* TrustScore supprimé */}
 
       {/* Section principale avec espacement optimisé */}
       <main className="space-y-12 pb-12">

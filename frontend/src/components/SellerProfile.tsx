@@ -43,11 +43,15 @@ export const SellerProfile: React.FC<SellerProfileProps> = ({ sellerId }) => {
   useEffect(() => {
     const fetchSellerProfile = async () => {
       try {
-        const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+        console.log('🌐 Fetching seller profile from:', `${backendUrl}/api/sellers/${sellerId}/profile`);
         const response = await fetch(`${backendUrl}/api/sellers/${sellerId}/profile`);
         if (response.ok) {
           const data = await response.json();
           setProfileData(data);
+          console.log('✅ Seller profile data:', data);
+        } else {
+          console.error('❌ Failed to fetch seller profile:', await response.text());
         }
       } catch (error) {
         console.error('Error fetching seller profile:', error);

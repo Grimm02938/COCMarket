@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import FuturisticHeader from '@/components/FuturisticHeader';
-import { RealisticTrustScore } from '@/components/RealisticTrustScore';
 
 const UserProfile = () => {
   const { user, updateProfile, logout } = useAuth();
@@ -277,17 +276,7 @@ const UserProfile = () => {
           {/* Right Column - Stats and Trust Score */}
           <div className="space-y-6">
             
-            {/* Trust Score */}
-            <div>
-              <h3 className="text-lg font-bold text-white mb-4">Score de Confiance</h3>
-              <RealisticTrustScore 
-                size="small" 
-                showDetails={false}
-                variant="default"
-                totalReviews={user.total_purchases + user.total_sales}
-                score={user.trust_score}
-              />
-            </div>
+            {/* Trust Score supprimé */}
 
             {/* Stats Card */}
             <Card className="bg-black/40 backdrop-blur-lg border-gray-800">

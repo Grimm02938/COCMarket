@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SellerProfile } from '@/components/SellerProfile';
-import { Header } from '@/components/Header';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import { useToast } from '@/components/ui/use-toast';
 
 const SellerProfilePage = () => {
   const { sellerId } = useParams<{ sellerId: string }>();
@@ -29,8 +30,8 @@ const SellerProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <FuturisticHeader />
       
       <div className="container mx-auto px-4 py-8">
         {/* Navigation back button */}
@@ -38,7 +39,7 @@ const SellerProfilePage = () => {
           <Button
             onClick={() => navigate('/')}
             variant="outline"
-            className="border-primary/40 text-primary hover:bg-primary/15 hover:border-primary/60 transition-all duration-300 group"
+            className="border-blue-500/40 text-blue-400 hover:bg-blue-500/15 hover:border-blue-500/60 transition-all duration-300 group"
           >
             <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
             Retour à l'accueil

@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
   // Load token from localStorage on mount
   useEffect(() => {
@@ -81,6 +81,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string) => {
+    console.log('🔐 AuthContext: Tentative de connexion pour:', email);
+    console.log('🌐 Backend URL:', BACKEND_URL);
+    
     const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -89,37 +92,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       body: JSON.stringify({ email, password }),
     });
 
+    console.log('📡 Réponse du serveur - Status:', response.status);
+
     if (!response.ok) {
       const error = await response.json();
+      console.error('❌ Erreur de connexion:', error);
       throw new Error(error.detail || 'Login failed');
     }
 
     const authData = await response.json();
+    console.log('✅ Données d\'authentification reçues:', { 
+      hasToken: !!authData.token, 
+      hasUser: !!authData.user,
+      username: authData.user?.username 
+    });
+    
     setToken(authData.token);
     setUser(authData.user);
     localStorage.setItem('auth_token', authData.token);
   };
 
   const register = async (username: string, email: string, password: string) => {
+    console.log('📝 AuthContext: Tentative d\'inscription pour:', { username, email });
+    console.log('🌐 Backend URL:', BACKEND_URL);
+    
+    const requestData = {
+      username,
+      email,
+      password,
+      location: 'fr',
+    };
+    
+    console.log('📤 Données envoyées:', { ...requestData, password: '[MASQUÉ]' });
+    
     const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-        location: 'france',
-      }),
+      body: JSON.stringify(requestData),
     });
+
+    console.log('📡 Réponse du serveur - Status:', response.status);
 
     if (!response.ok) {
       const error = await response.json();
+      console.error('❌ Erreur d\'inscription:', error);
       throw new Error(error.detail || 'Registration failed');
     }
 
     const authData = await response.json();
+    console.log('✅ Inscription réussie, données reçues:', { 
+      hasToken: !!authData.token, 
+      hasUser: !!authData.user,
+      username: authData.user?.username,
+      userId: authData.user?.id 
+    });
+    
     setToken(authData.token);
     setUser(authData.user);
     localStorage.setItem('auth_token', authData.token);

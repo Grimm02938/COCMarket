@@ -3,6 +3,7 @@ import { X, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [error, setError] = useState('');
 
   const { register, login } = useAuth();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -66,23 +68,30 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     e.preventDefault();
     setError('');
     
+    console.log('🚀 Début de l\'inscription:', { username, email, hasPassword: !!password });
+    
     if (password !== confirmPassword) {
+      console.warn('⚠️ Mots de passe non identiques');
       setError('Les mots de passe ne correspondent pas');
       return;
     }
     
     if (password.length < 6) {
+      console.warn('⚠️ Mot de passe trop court');
       setError('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
     
     setIsLoading(true);
     try {
+      console.log('📡 Envoi de la requête d\'inscription...');
       await register(username, email, password);
+      console.log('✅ Inscription réussie');
       onSuccess?.();
       onClose();
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ Erreur lors de l\'inscription:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de l\'inscription');
     } finally {
       setIsLoading(false);
@@ -93,13 +102,17 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     e.preventDefault();
     setError('');
     
+    console.log('🔑 Début de la connexion:', { email, hasPassword: !!password });
+    
     setIsLoading(true);
     try {
+      console.log('📡 Envoi de la requête de connexion...');
       await login(email, password);
+      console.log('✅ Connexion réussie');
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Erreur lors de la connexion:', error);
       setError(error instanceof Error ? error.message : 'Erreur lors de la connexion');
     } finally {
       setIsLoading(false);
@@ -118,7 +131,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 mt-20"
       onClick={onClose}
     >
       {/* Backdrop */}
@@ -126,7 +139,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
       {/* Modal */}
       <div 
-        className="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-lg rounded-3xl border border-gray-700/50 shadow-2xl flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-lg rounded-3xl border border-gray-700/50 shadow-2xl flex flex-col max-h-[80vh] animate-in fade-in-0 slide-in-from-top-5"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -260,6 +273,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
               </div>
 
@@ -274,6 +288,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="new-password"
                 />
               </div>
 
@@ -322,6 +337,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   required
                   className="w-full bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-blue-400/20"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                 />
               </div>
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, Header, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -34,7 +34,9 @@ logger = logging.getLogger(__name__)
 # IMPORTANT: Place your 'firebase-service-account.json' file in the 'backend/' directory.
 try:
     cred_path = ROOT_DIR / 'firebase-service-account.json'
-    if cred_path.exists():
+    if firebase_admin._apps:
+        logger.warning("Firebase app already initialized.")
+    elif cred_path.exists():
         cred = credentials.Certificate(str(cred_path))
         firebase_admin.initialize_app(cred)
         logger.info("Firebase Admin SDK initialized successfully.")
@@ -43,9 +45,11 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize Firebase Admin SDK: {e}")
 
+
 # --- Stripe Configuration ---
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "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")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_live_51RqyOwFsrP029t76six64eFyLCFMGmib98fSp9KnzT32IPv3FMH9FPmndf1OSTNcLPM8mVL4g1m4SsOvJBCTlUCL00eVIHsvge")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_...") # Replace with your actual webhook secret
 logger.info("Stripe configured.")
 
 # --- MongoDB Connection ---
@@ -117,6 +121,29 @@ class GameProduct(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     view_count: int = 0
     favorite_count: int = 0
+    
+class GameProductCreate(BaseModel):
+    title: str
+    description: str
+    category: ProductCategory
+    game_name: str
+    price: float
+    original_price: Optional[float] = None
+    condition: ProductCondition = ProductCondition.EXCELLENT
+    location: LocationRegion
+    seller_id: str
+    images: List[str] = []
+    level: Optional[int] = None
+    rank: Optional[str] = None
+    stats: Dict[str, Any] = {}
+
+class GameProductUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    condition: Optional[ProductCondition] = None
+    is_available: Optional[bool] = None
+    stats: Optional[Dict[str, Any]] = None
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -172,30 +199,34 @@ class StripeCheckoutRequest(BaseModel):
     success_url: str
     cancel_url: str
 
-# ... (Other models like Review, MarketStats, etc., remain the same)
-
 # --- Authentication Endpoints ---
-
 @api_router.post("/auth/register", response_model=AuthResponse)
 async def register_user(user_data: UserCreate):
-    logger.info(f"New user registration attempt for email: {user_data.email}")
+    logger.info(f"📝 New user registration attempt for email: {user_data.email}")
     
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
+        logger.warning(f"❌ Email already registered: {user_data.email}")
         raise HTTPException(status_code=400, detail="Email already registered")
     
     existing_username = await db.users.find_one({"username": user_data.username})
     if existing_username:
+        logger.warning(f"❌ Username already taken: {user_data.username}")
         raise HTTPException(status_code=400, detail="Username already taken")
     
     user_dict = user_data.dict()
     password = user_dict.pop("password")
     user_dict["password_hash"] = hash_password(password)
+    logger.info(f"🔐 Password hashed for: {user_data.username}")
     
     user_obj = User(**user_dict)
-    await db.users.insert_one(user_obj.dict())
     
-    logger.info(f"User '{user_data.username}' with email '{user_data.email}' registered successfully.")
+    try:
+        await db.users.insert_one(user_obj.dict())
+        logger.info(f"✅ User '{user_data.username}' created successfully in DB.")
+    except Exception as e:
+        logger.error(f"❌ DB insertion error: {e}")
+        raise HTTPException(status_code=500, detail="Database error during user creation")
     
     token = generate_session_token()
     expires_at = datetime.utcnow().replace(microsecond=0) + timedelta(days=30)
@@ -207,6 +238,33 @@ async def register_user(user_data: UserCreate):
     user_dict.pop("password_hash", None)
     safe_user = User(**user_dict, password_hash="***")
     
+    logger.info(f"🎉 Registration successful for: {user_data.username}")
+    return AuthResponse(user=safe_user, token=token, expires_at=expires_at)
+
+@api_router.post("/auth/login", response_model=AuthResponse)
+async def login_user(login_data: UserLogin):
+    logger.info(f"🔑 Login attempt for: {login_data.email}")
+    user = await db.users.find_one({"email": login_data.email})
+    if not user or not user.get("password_hash"):
+        logger.warning(f"❌ User not found or is social login user: {login_data.email}")
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if not verify_password(login_data.password, user["password_hash"]):
+        logger.warning(f"❌ Incorrect password for: {login_data.email}")
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    await db.sessions.update_many({"user_id": user["id"], "is_active": True}, {"$set": {"is_active": False}})
+    
+    token = generate_session_token()
+    expires_at = datetime.utcnow().replace(microsecond=0) + timedelta(days=30)
+    
+    session = UserSession(user_id=user["id"], token=token, expires_at=expires_at)
+    await db.sessions.insert_one(session.dict())
+
+    user.pop("password_hash", None)
+    safe_user = User(**user, password_hash="***")
+    
+    logger.info(f"🎉 Login successful for: {user['username']}")
     return AuthResponse(user=safe_user, token=token, expires_at=expires_at)
 
 @api_router.post("/auth/social-login", response_model=AuthResponse)
@@ -221,7 +279,6 @@ async def social_login(social_data: SocialLogin):
             raise HTTPException(status_code=400, detail="Email not provided by social provider.")
             
         logger.info(f"Social login attempt for email: {email} via provider: {provider}")
-
         user = await db.users.find_one({"email": email})
 
         if not user:
@@ -234,15 +291,12 @@ async def social_login(social_data: SocialLogin):
                 counter += 1
 
             new_user_data = {
-                "username": username,
-                "email": email,
-                "location": LocationRegion.FR,
-                "auth_provider": provider,
-                "is_verified": True
+                "username": username, "email": email, "display_name": name,
+                "location": LocationRegion.FR, "auth_provider": provider, "is_verified": True
             }
             user_obj = User(**new_user_data)
             await db.users.insert_one(user_obj.dict())
-            user = await db.users.find_one({"email": email})
+            user = await db.users.find_one({"email": email}) # Re-fetch user to get the full document
             logger.info(f"New user created via social login: {username}")
         else:
             logger.info(f"User with email {email} found. Logging in.")
@@ -267,93 +321,66 @@ async def social_login(social_data: SocialLogin):
         logger.error(f"An error occurred during social login: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred during social login.")
 
-# ... (Keep existing login, logout, and profile endpoints as they were)
-@api_router.post("/auth/login", response_model=AuthResponse)
-async def login_user(login_data: UserLogin):
-    """Login user with email and password"""
-    user = await db.users.find_one({"email": login_data.email})
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    
-    if not verify_password(login_data.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    
-    # Deactivate old sessions
-    await db.sessions.update_many(
-        {"user_id": user["id"], "is_active": True},
-        {"$set": {"is_active": False}}
-    )
-    
-    # Create new session
-    token = generate_session_token()
-    expires_at = datetime.utcnow().replace(microsecond=0) + timedelta(days=30)  # 30 day session
-    
-    session = UserSession(
-        user_id=user["id"],
-        token=token,
-        expires_at=expires_at
-    )
-    await db.sessions.insert_one(session.dict())
-    
-    # Return user without password_hash
-    user.pop("password_hash", None)
-    safe_user = User(**user, password_hash="***")  # Hidden in response
-    
-    return AuthResponse(
-        user=safe_user,
-        token=token,
-        expires_at=expires_at
-    )
-
-# --- NEW Stripe Payment Endpoint ---
+# --- Stripe Payment Endpoints ---
 @api_router.post("/payments/create-checkout-session")
 async def create_checkout_session(request: StripeCheckoutRequest):
-    logger.info(f"Attempting to create Stripe session for product_id: {request.product_id}")
-    
+    logger.info(f"Creating checkout session for product: {request.product_id}")
     product = await db.products.find_one({"id": request.product_id})
     if not product:
-        logger.error(f"Product with ID {request.product_id} not found.")
+        logger.error(f"Product not found: {request.product_id}")
         raise HTTPException(status_code=404, detail="Product not found")
 
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'eur',
-                        'product_data': {
-                            'name': product['title'],
-                            'description': product.get('description', ''),
-                        },
-                        'unit_amount': int(product['price'] * 100),
-                    },
-                    'quantity': request.quantity,
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': { 'name': product['title'] },
+                    'unit_amount': int(product['price'] * 100),
                 },
-            ],
+                'quantity': request.quantity,
+            }],
             mode='payment',
             success_url=request.success_url,
             cancel_url=request.cancel_url,
             metadata={'product_id': request.product_id}
         )
-        logger.info(f"Stripe session created successfully: {checkout_session.id}")
+        logger.info(f"Checkout session created: {checkout_session.id}")
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
-    
     except Exception as e:
-        logger.error(f"Failed to create Stripe checkout session: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create payment session: {str(e)}")
+        logger.error(f"Stripe error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Stripe error: {str(e)}")
 
-# --- Other Endpoints (Products, Reviews, etc.) ---
-# (The rest of the endpoints from the original file should be here)
+@api_router.post("/payments/webhook/stripe")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        product_id = session.get('metadata', {}).get('product_id')
+        logger.info(f"Payment successful for product {product_id}")
+        await db.products.update_one(
+            {"id": product_id},
+            {"$set": {"is_available": False, "sold_at": datetime.utcnow()}}
+        )
+    
+    return {"status": "success"}
+
+# --- Other Product and User Endpoints ---
 @api_router.get("/products", response_model=List[GameProduct])
 async def get_products(
-    category: Optional[ProductCategory] = None,
-    game_name: Optional[str] = None,
-    min_price: Optional[float] = None,
-    max_price: Optional[float] = None,
-    search: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 20
+    category: Optional[ProductCategory] = None, game_name: Optional[str] = None,
+    min_price: Optional[float] = None, max_price: Optional[float] = None,
+    search: Optional[str] = None, skip: int = 0, limit: int = 20
 ):
     filters = {"is_available": True}
     if category: filters["category"] = category
@@ -371,7 +398,14 @@ async def get_products(
     products = await db.products.find(filters).skip(skip).limit(limit).sort("created_at", -1).to_list(None)
     return [GameProduct(**p) for p in products]
 
-# ... include all other endpoints from the original server.py ...
+@api_router.get("/products/{product_id}", response_model=GameProduct)
+async def get_product(product_id: str):
+    product = await db.products.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    await db.products.update_one({"id": product_id}, {"$inc": {"view_count": 1}})
+    return GameProduct(**product)
+
 
 # --- App Initialization ---
 app.include_router(api_router)

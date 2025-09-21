@@ -1,7 +1,10 @@
-
 import { useState } from "react";
 import { Star, Shield, Coins, Clock, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { loadStripe } from "@stripe/stripe-js"; // ✅ Ajout Stripe
+
+// ⚠️ Clé publique dans .env.local => NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "");
 
 const villagesData = [
   {
@@ -61,6 +64,24 @@ const filterOptions = [
 export const VillageListings = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+
+  // ✅ Nouvelle fonction pour lancer Stripe Checkout
+  async function handleCheckout(village: any) {
+    const stripe = await stripePromise;
+    if (!stripe) return alert("Stripe n'a pas pu être chargé.");
+
+    const response = await fetch("/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: village.title,
+        price: village.price,
+      }),
+    });
+
+    const session = await response.json();
+    await stripe.redirectToCheckout({ sessionId: session.id });
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
@@ -181,9 +202,10 @@ export const VillageListings = () => {
                 )}
               </div>
 
-              {/* Action */}
+              {/* Action avec Stripe */}
               <Button 
                 className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-white font-medium"
+                onClick={() => handleCheckout(village)}
               >
                 Acheter maintenant
               </Button>

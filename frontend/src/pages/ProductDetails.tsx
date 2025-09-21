@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import FuturisticHeader from '@/components/FuturisticHeader';
-import { RealisticTrustScore } from '@/components/RealisticTrustScore';
+import { createCheckoutSession, redirectToCheckout } from '@/services/stripeService';
 
 interface GameProduct {
   id: string;
@@ -64,6 +64,7 @@ const ProductDetails = () => {
   const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -71,14 +72,49 @@ const ProductDetails = () => {
     }
   }, [id]);
 
+  const handlePurchase = async () => {
+    if (!product) return;
+    
+    setIsProcessingPayment(true);
+    
+    try {
+      console.log('Starting purchase process for product:', product.id);
+      
+      const currentUrl = window.location.origin;
+      const paymentData = {
+        product_id: product.id,
+        success_url: `${currentUrl}/payment-success?product_id=${product.id}`,
+        cancel_url: `${currentUrl}/products/${product.id}`,
+      };
+
+      console.log('Payment data:', paymentData);
+      const session = await createCheckoutSession(paymentData);
+      
+      console.log('Session response:', session);
+      
+      if (!session || !session.checkout_session_id) {
+        throw new Error('Session de paiement invalide reçue du serveur');
+      }
+      
+      console.log('Redirecting to Stripe checkout with session ID:', session.checkout_session_id);
+      await redirectToCheckout(session.checkout_session_id);
+    } catch (error) {
+      console.error('Erreur lors du paiement:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      alert(`Erreur lors de l'initialisation du paiement: ${errorMessage}`);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
   const fetchProductData = async (productId: string) => {
     setLoading(true);
     try {
       const [productRes, reviewsRes, reviewStatsRes, priceHistoryRes] = await Promise.all([
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/reviews`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/reviews/stats`),
-        fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products/${productId}/price-history`)
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/reviews`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/reviews/stats`),
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/price-history`)
       ]);
 
       if (productRes.ok) {
@@ -318,10 +354,17 @@ const ProductDetails = () => {
               {/* Action Buttons */}
               <div className="space-y-3">
                 <Button 
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3"
+                  onClick={handlePurchase}
+                  disabled={isProcessingPayment || !product.is_available}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   size="lg"
                 >
-                  Acheter maintenant - {formatPrice(product.price)}
+                  {isProcessingPayment 
+                    ? 'Redirection vers le paiement...' 
+                    : product.is_available 
+                      ? `Acheter maintenant - ${formatPrice(product.price)}` 
+                      : 'Produit non disponible'
+                  }
                 </Button>
                 
                 <div className="grid grid-cols-2 gap-3">
@@ -366,14 +409,7 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* Trust Score Section */}
-        <div className="mt-8 mb-8">
-          <div className="text-center mb-6">
-            <h3 className="text-xl font-bold text-white mb-2">Confiance et Sécurité CocMarket</h3>
-            <p className="text-gray-400">Notre score de confiance basé sur les avis vérifiés de nos utilisateurs</p>
-          </div>
-          <RealisticTrustScore size="medium" />
-        </div>
+  {/* Trust Score supprimé */}
 
         {/* Product Details Tabs */}
         <div className="mt-12">
