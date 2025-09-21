@@ -17,8 +17,9 @@ import firebase_admin
 from firebase_admin import credentials, auth
 
 # --- Basic Configuration ---
+load_dotenv()
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+
 
 # --- Logging Configuration ---
 logging.basicConfig(
@@ -31,7 +32,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- Firebase Admin SDK Initialization ---
-# IMPORTANT: Place your 'firebase-service-account.json' file in the 'backend/' directory.
 try:
     cred_path = ROOT_DIR / 'firebase-service-account.json'
     if firebase_admin._apps:
@@ -47,13 +47,14 @@ except Exception as e:
 
 
 # --- Stripe Configuration ---
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY", "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")
-STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "pk_live_51RqyOwFsrP029t76six64eFyLCFMGmib98fSp9KnzT32IPv3FMH9FPmndf1OSTNcLPM8mVL4g1m4SsOvJBCTlUCL00eVIHsvge")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "whsec_...") # Replace with your actual webhook secret
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
 logger.info("Stripe configured.")
 
 # --- MongoDB Connection ---
-mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+mongo_url = os.environ.get('MONGO_URL')
+print(f"--- DEBUG: Trying to use MONGO_URL: {mongo_url} ---") # DEBUG LINE
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ.get('DB_NAME', 'cocmarket')]
 
@@ -78,7 +79,7 @@ def generate_session_token() -> str:
 app = FastAPI(title="CocMarket Gaming Marketplace API")
 api_router = APIRouter(prefix="/api")
 
-# --- Enums and Models ---
+# ... (le reste du fichier reste inchangé) ...
 class ProductCategory(str, Enum):
     ACCOUNTS = "accounts"
     ITEMS = "items"
@@ -199,7 +200,6 @@ class StripeCheckoutRequest(BaseModel):
     success_url: str
     cancel_url: str
 
-# --- Authentication Endpoints ---
 @api_router.post("/auth/register", response_model=AuthResponse)
 async def register_user(user_data: UserCreate):
     logger.info(f"📝 New user registration attempt for email: {user_data.email}")
@@ -296,7 +296,7 @@ async def social_login(social_data: SocialLogin):
             }
             user_obj = User(**new_user_data)
             await db.users.insert_one(user_obj.dict())
-            user = await db.users.find_one({"email": email}) # Re-fetch user to get the full document
+            user = await db.users.find_one({"email": email})
             logger.info(f"New user created via social login: {username}")
         else:
             logger.info(f"User with email {email} found. Logging in.")
@@ -321,93 +321,6 @@ async def social_login(social_data: SocialLogin):
         logger.error(f"An error occurred during social login: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred during social login.")
 
-# --- Stripe Payment Endpoints ---
-@api_router.post("/payments/create-checkout-session")
-async def create_checkout_session(request: StripeCheckoutRequest):
-    logger.info(f"Creating checkout session for product: {request.product_id}")
-    product = await db.products.find_one({"id": request.product_id})
-    if not product:
-        logger.error(f"Product not found: {request.product_id}")
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'eur',
-                    'product_data': { 'name': product['title'] },
-                    'unit_amount': int(product['price'] * 100),
-                },
-                'quantity': request.quantity,
-            }],
-            mode='payment',
-            success_url=request.success_url,
-            cancel_url=request.cancel_url,
-            metadata={'product_id': request.product_id}
-        )
-        logger.info(f"Checkout session created: {checkout_session.id}")
-        return {"sessionId": checkout_session.id, "url": checkout_session.url}
-    except Exception as e:
-        logger.error(f"Stripe error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Stripe error: {str(e)}")
-
-@api_router.post("/payments/webhook/stripe")
-async def stripe_webhook(request: Request):
-    payload = await request.body()
-    sig_header = request.headers.get('stripe-signature')
-    
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid payload")
-    except stripe.error.SignatureVerificationError:
-        raise HTTPException(status_code=400, detail="Invalid signature")
-    
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        product_id = session.get('metadata', {}).get('product_id')
-        logger.info(f"Payment successful for product {product_id}")
-        await db.products.update_one(
-            {"id": product_id},
-            {"$set": {"is_available": False, "sold_at": datetime.utcnow()}}
-        )
-    
-    return {"status": "success"}
-
-# --- Other Product and User Endpoints ---
-@api_router.get("/products", response_model=List[GameProduct])
-async def get_products(
-    category: Optional[ProductCategory] = None, game_name: Optional[str] = None,
-    min_price: Optional[float] = None, max_price: Optional[float] = None,
-    search: Optional[str] = None, skip: int = 0, limit: int = 20
-):
-    filters = {"is_available": True}
-    if category: filters["category"] = category
-    if game_name: filters["game_name"] = {"$regex": game_name, "$options": "i"}
-    if min_price is not None: filters["price"] = {"$gte": min_price}
-    if max_price is not None:
-        if "price" in filters: filters["price"]["$lte"] = max_price
-        else: filters["price"] = {"$lte": max_price}
-    if search:
-        filters["$or"] = [
-            {"title": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}},
-        ]
-    
-    products = await db.products.find(filters).skip(skip).limit(limit).sort("created_at", -1).to_list(None)
-    return [GameProduct(**p) for p in products]
-
-@api_router.get("/products/{product_id}", response_model=GameProduct)
-async def get_product(product_id: str):
-    product = await db.products.find_one({"id": product_id})
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    await db.products.update_one({"id": product_id}, {"$inc": {"view_count": 1}})
-    return GameProduct(**product)
-
-
-# --- App Initialization ---
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
