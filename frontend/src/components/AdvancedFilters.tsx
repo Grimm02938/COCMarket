@@ -41,8 +41,8 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({ onFiltersChange, isOp
     const fetchFilterData = async () => {
       try {
         const [categoriesRes, gamesRes] = await Promise.all([
-          fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/categories`),
-          fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/games`)
+          fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/categories`),
+          fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/api/games`)
         ]);
         
         const categoriesData = await categoriesRes.json();

@@ -20,36 +20,51 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from authlib.integrations.starlette_client import OAuth
 from authlib.jose import jwt
+import uvicorn
 
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Firebase initialization
-cred = credentials.Certificate({
-    "type": "service_account",
-    "project_id": os.environ.get('FIREBASE_PROJECT_ID'),
-    "private_key_id": os.environ.get('FIREBASE_PRIVATE_KEY_ID'),
-    "private_key": os.environ.get('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
-    "client_email": os.environ.get('FIREBASE_CLIENT_EMAIL'),
-    "client_id": os.environ.get('FIREBASE_CLIENT_ID'),
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": os.environ.get('FIREBASE_CLIENT_CERT_URL')
-})
+"""Optional Firebase initialization (disabled if env vars are missing).
+This avoids crashes in local dev when Firebase credentials are not configured.
+"""
+db_firebase = None
+try:
+    fb_private_key = os.environ.get('FIREBASE_PRIVATE_KEY')
+    fb_project_id = os.environ.get('FIREBASE_PROJECT_ID')
+    fb_client_email = os.environ.get('FIREBASE_CLIENT_EMAIL')
+    fb_client_id = os.environ.get('FIREBASE_CLIENT_ID')
+    if all([fb_private_key, fb_project_id, fb_client_email, fb_client_id]):
+        cred = credentials.Certificate({
+            "type": "service_account",
+            "project_id": fb_project_id,
+            "private_key_id": os.environ.get('FIREBASE_PRIVATE_KEY_ID'),
+            "private_key": fb_private_key.replace('\\n', '\n'),
+            "client_email": fb_client_email,
+            "client_id": fb_client_id,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": os.environ.get('FIREBASE_CLIENT_CERT_URL')
+        })
+        firebase_admin.initialize_app(cred)
+        db_firebase = firestore.client()
+        # Safe info log (no secrets)
+        logging.getLogger(__name__).info("Firebase initialized for project_id=%s", fb_project_id)
+except Exception as e:
+    # Firebase not configured; continue without it
+    db_firebase = None
 
-firebase_admin.initialize_app(cred)
-db_firebase = firestore.client()
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+# MongoDB connection (with safe defaults for local dev)
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+db_name = os.environ.get('DB_NAME', 'cocmarket')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
-# Configuration Stripe
-stripe.api_key = "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"
-STRIPE_PUBLISHABLE_KEY = "pk_live_51RqyOwFsrP029t76six64eFyLCFMGmib98fSp9KnzT32IPv3FMH9FPmndf1OSTNcLPM8mVL4g1m4SsOvJBCTlUCL00eVIHsvge"
+# Configuration Stripe (use env, fall back to test keys or blank)
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 
 # Configuration OAuth2 pour Google et Apple
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
@@ -87,6 +102,26 @@ app = FastAPI(title="CocMarket Gaming Marketplace API")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Health endpoint to quickly verify configuration at runtime
+@api_router.get("/health")
+async def health():
+    firebase_ok = db_firebase is not None
+    stripe_ok = bool(stripe.api_key)
+    mongo_ok = True
+    try:
+        # Simple ping; works on modern Mongo servers
+        await db.command('ping')
+    except Exception:
+        mongo_ok = False
+    return {
+        "status": "ok" if (mongo_ok) else "degraded",
+        "services": {
+            "mongo": mongo_ok,
+            "firebase": firebase_ok,
+            "stripe": stripe_ok
+        }
+    }
 
 # Enums
 class ProductCategory(str, Enum):
@@ -183,7 +218,7 @@ class UserCreate(BaseModel):
     username: str
     email: str
     password: str  # Added password field
-    location: LocationRegion = LocationRegion.FRANCE
+    location: LocationRegion = LocationRegion.FR
     avatar: Optional[str] = None
     display_name: Optional[str] = None
     bio: Optional[str] = None
@@ -1089,3 +1124,7 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# Run with: python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+if __name__ == "__main__":
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)

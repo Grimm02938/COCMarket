@@ -69,7 +69,8 @@ const ProductListing = () => {
       
       params.append('limit', '20');
       
-      const response = await fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/api/products?${params}`);
+  const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+  const response = await fetch(`${baseUrl}/api/products?${params}`);
       const data = await response.json();
       
       // Sort products

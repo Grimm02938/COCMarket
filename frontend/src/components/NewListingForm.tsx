@@ -62,7 +62,7 @@ export const NewListingForm: React.FC<NewListingFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
       const response = await fetch(`${backendUrl}/api/products`, {
         method: 'POST',
         headers: {
